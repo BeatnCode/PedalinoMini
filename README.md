@@ -77,28 +77,30 @@ PedalinoMini Phoenix is a significant evolution of the original **[PedalinoMini�
 ## 🔌 Pin Configuration Guide
 
 ### Pedal Assignments
-| Pedal  | GPIO  | Digital |  Analog  | Type                     |
-|--------|-------|---------|----------|--------------------------|
-| 1      | 23    | ✅      | ❌      | Digital Switch           |
-| 2      | 17    | ✅      | ❌      | Digital Switch           |
-| 3      | 16    | ✅      | ❌      | Digital Switch           |
-| 4      | 13    | ✅      | ❌      | Digital Switch           |
-| 5      | 14    | ✅      | ❌      | Digital Switch           |
-| 6      | 27    | ✅      | ❌      | Digital Switch           |
-| 7      | 26    | ✅      | ❌      | Digital Switch           |
-| 8      | 25    | ✅      | ❌      | Digital Switch           |
-| 9      | 33    | ✅      | ✅      | Expression (ADC)         |
-| 10     | 32    | ✅      | ✅      | Expression (ADC)         |
-| 11     | 35    | ✅      | ✅      | Expression (ADC)         |
-| 12     | 34    | ✅      | ✅      | Expression (ADC)         |
-| 13     | 39    | ✅      | ✅      | Expression (ADC)         |
-| 14     | 36    | ✅      | ✅      | Expression (ADC)         |
-| 15     | 0     | ✅      | ❌      | Digital Switch (Onboard) |
+| Pedal  | GPIO  | Digital |  Analog  | Type                   | SmartStomp GPIO
+|--------|-------|---------|----------|------------------------| -------
+| 1      | 23    | ✅      | ❌      | Digital Switch           |    25
+| 2      | 17    | ✅      | ❌      | Digital Switch           |    26
+| 3      | 16    | ✅      | ❌      | Digital Switch           |    27
+| 4      | 13    | ✅      | ❌      | Digital Switch           |    14
+| 5      | 14    | ✅      | ❌      | Digital Switch           |    13
+| 6      | 27    | ✅      | ❌      | Digital Switch           |    19
+| 7      | 26    | ✅      | ❌      | Digital Switch           |    23
+| 8      | 25    | ✅      | ❌      | Digital Switch           |    17
+| 9      | 33    | ✅      | ✅      | Expression (ADC)         |    36
+| 10     | 32    | ✅      | ✅      | Expression (ADC)         |    39
+| 11     | 35    | ✅      | ✅      | Expression (ADC)         |    32
+| 12     | 34    | ✅      | ✅      | Expression (ADC)         |    33
+| 13     | 39    | ✅      | ✅      | Expression (ADC)         |    34
+| 14     | 36    | ✅      | ✅      | Expression (ADC)         |    35
+| 15     | 0     | ✅      | ❌      | Digital Switch (Onboard) |    16
+
+
 
 ### System Pins
-- **MIDI IN**: GPIO 2
+- **MIDI IN**: GPIO 15
 - **MIDI OUT**: GPIO 4
-- **USB MIDI**: GPIO 18, 19
+- **USB MIDI**: GPIO 18, 2
 - **LED Strip**: GPIO 5
 - **OLED SDA**: GPIO 22
 - **OLED SCL**: GPIO 21

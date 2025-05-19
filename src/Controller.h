@@ -24,6 +24,9 @@ struct event {
 
 std::list<event>   backlog;
 
+bool lastSeqenceStepFWD[SEQUENCES];
+bool lastSeqenceStepREV[SEQUENCES];
+
 void refresh_analog(byte, bool);
 
 unsigned int map_analog(byte p, unsigned int value)
@@ -1112,13 +1115,49 @@ void fire_action(action* act, byte p, byte i, byte e)
               act->midiCode    = constrain(act->midiCode, 0, STEPS - 1);
               act->midiCode    = (sequences[act->midiChannel - 1][act->midiCode].midiMessage == PED_EMPTY) ? 0 : act->midiCode;
               if (sequences[act->midiChannel - 1][0].midiMessage == PED_EMPTY) break;
+
+              if (lastSeqenceStepFWD[act->midiChannel - 1] == lastSeqenceStepREV[act->midiChannel - 1])
+              {
+                // do nothing on first occurence
+              }
+              else
+              {
+                if (lastSeqenceStepREV[act->midiChannel - 1] && act->midiMessage == PED_SEQUENCE_STEP_BY_STEP_FWD)
+                {
+                  act->midiCode = (act->midiCode + 2) % STEPS;
+                  act->midiCode = (sequences[act->midiChannel - 1][act->midiCode].midiMessage == PED_EMPTY ? 0 : act->midiCode);
+                }
+
+                if (lastSeqenceStepFWD[act->midiChannel - 1] && act->midiMessage == PED_SEQUENCE_STEP_BY_STEP_REV)
+                {
+                  if (act->midiCode == 1)
+                  {
+                    byte s;
+                    for (s = 0; s < STEPS; s++)
+                    {
+                      if (sequences[act->midiChannel - 1][s].midiMessage == PED_EMPTY)
+                        break;
+                    }
+                    if (s > 0)
+                      act->midiCode = s - 1;
+                  }
+                  else if (act->midiCode > 1)
+                    act->midiCode = act->midiCode - 2;
+                }
+              } 
+
               midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel - 1, true, act->midiValue1, act->midiValue2, currentBank, p, i, led_control(act->control, act->led));
+              
               switch (act->midiMessage) {
                 case PED_SEQUENCE_STEP_BY_STEP_FWD:
+                  lastSeqenceStepFWD[act->midiChannel - 1] = true;
+                  lastSeqenceStepREV[act->midiChannel - 1] = false;
                   act->midiCode = (act->midiCode + 1 ) % STEPS;
                   act->midiCode = (sequences[act->midiChannel - 1][act->midiCode].midiMessage == PED_EMPTY ? 0 : act->midiCode);
                   break;
                 case PED_SEQUENCE_STEP_BY_STEP_REV:
+                  lastSeqenceStepFWD[act->midiChannel - 1] = false;
+                  lastSeqenceStepREV[act->midiChannel - 1] = true;
                   if (act->midiCode == 0) {
                     byte s;
                     for (s = 0; s < STEPS; s++) {
@@ -1989,7 +2028,8 @@ void controller_delete()
 //
 void controller_run(bool send = true)
 {
-  static byte adsChannel[ADC_BOARDS] = {0, 0, 0, 0};
+  //static byte adsChannel[ADC_BOARDS] = {0, 0, 0, 0};
+  static byte adsChannel[ADC_BOARDS] = {0};
 
   while (controllerRunning) vTaskDelay(1/portTICK_PERIOD_MS);  // wait for fist task to complete
   controllerRunning = true;                                    // block second tasks to run
@@ -2274,6 +2314,11 @@ void controller_setup()
 
   analogReadResolution(ADC_RESOLUTION_BITS);
   analogSetAttenuation(ADC_11db);
+
+  for (int i = 0; i < SEQUENCES; i++) {
+    lastSeqenceStepFWD[i] = false;
+    lastSeqenceStepREV[i] = false;
+  }
 
   DPRINT("Bank %2d\n", currentBank);
 

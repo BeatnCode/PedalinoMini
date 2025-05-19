@@ -21,11 +21,11 @@
 #define MODEL           "PedalinoMini 🐦‍🔥"
 
 #define INTERFACES        6
-#define PROFILES          3
-#define BANKS            21   // 20 banks + 1 bank for global actions
-#define PEDALS           15   // real number of pedals is board specific (see below)
-#define CONTROLS        100
-#define SEQUENCES        20
+#define PROFILES          2
+#define BANKS             3   // 20 banks + 1 bank for global actions
+#define PEDALS           17   // real number of pedals is board specific (see below)
+#define CONTROLS         (36 + 17) // ab 36 für ladder steps?
+#define SEQUENCES        25
 #define STEPS            10   // number of steps for each sequence
 #define LADDER_STEPS      6   // max number of controls in a resistor ladder
 #define ADC_BOARDS        4   //
@@ -52,44 +52,48 @@
 
 // Digital pins for switches/pedals
 const byte pinD[] = {
-  GPIO_NUM_23,  // Pedal  1 - Digital Switch
-  GPIO_NUM_17,  // Pedal  2 - Digital Switch
-  GPIO_NUM_16,  // Pedal  3 - Digital Switch
-  GPIO_NUM_13,  // Pedal  4 - Digital Switch
-  GPIO_NUM_14,  // Pedal  5 - Digital Switch
-  GPIO_NUM_27,  // Pedal  6 - Digital Switch
-  GPIO_NUM_26,  // Pedal  7 - Digital Switch
-  GPIO_NUM_25,  // Pedal  8 - Digital Switch
-  GPIO_NUM_33,  // Pedal  9 - Expression (ADC1_CH0)
-  GPIO_NUM_32,  // Pedal 10 - Expression (ADC1_CH3)
-  GPIO_NUM_35,  // Pedal 11 - Expression (ADC1_CH6)
-  GPIO_NUM_34,  // Pedal 12 - Expression (ADC1_CH7)
-  GPIO_NUM_39,  // Pedal 13 - Expression (ADC1_CH4)
-  GPIO_NUM_36,  // Pedal 14 - Expression (ADC1_CH5)
-  GPIO_NUM_0    // Pedal 15 - Digital Switch (shared with BOOT)
+  GPIO_NUM_25,  // Pedal  1 - Digital Switch
+  GPIO_NUM_26,  // Pedal  2 - Digital Switch
+  GPIO_NUM_27,  // Pedal  3 - Digital Switch
+  GPIO_NUM_14,  // Pedal  4 - Digital Switch
+  GPIO_NUM_13,  // Pedal  5 - Digital Switch
+  GPIO_NUM_19,  // Pedal  6 - Digital Switch
+  GPIO_NUM_23,  // Pedal  7 - Digital Switch
+  GPIO_NUM_17,  // Pedal  8 - Digital Switch
+  GPIO_NUM_16,  // Pedal  9 - Digital Switch (shared with BOOT)
+  GPIO_NUM_36,  // Pedal 10 - Expression (ADC1_CH0)
+  GPIO_NUM_39,  // Pedal 11 - Expression (ADC1_CH3)
+  GPIO_NUM_32,  // Pedal 12 - Expression (ADC1_CH6)
+  GPIO_NUM_33,  // Pedal 13 - Expression (ADC1_CH7)
+  GPIO_NUM_34,  // Pedal 14 - Expression (ADC1_CH4) Extern
+  GPIO_NUM_35,  // Pedal 15 - Expression (ADC1_CH5) Extern
+  GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
+  GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
 };
 
 // Analog pins for expression pedals
 const byte pinA[] = {
-    GPIO_NUM_23,  // Pedal  1 - Digital Switch
-    GPIO_NUM_17,  // Pedal  2 - Digital Switch
-    GPIO_NUM_16,  // Pedal  3 - Digital Switch
-    GPIO_NUM_13,  // Pedal  4 - Digital Switch
-    GPIO_NUM_14,  // Pedal  5 - Digital Switch
-    GPIO_NUM_27,  // Pedal  6 - Digital Switch
-    GPIO_NUM_26,  // Pedal  7 - Digital Switch
-    GPIO_NUM_25,  // Pedal  8 - Digital Switch
-    GPIO_NUM_33,  // Pedal  9 - Expression (ADC1_CH0)
-    GPIO_NUM_32,  // Pedal 10 - Expression (ADC1_CH3)
-    GPIO_NUM_35,  // Pedal 11 - Expression (ADC1_CH6)
-    GPIO_NUM_34,  // Pedal 12 - Expression (ADC1_CH7)
-    GPIO_NUM_39,  // Pedal 13 - Expression (ADC1_CH4)
-    GPIO_NUM_36,  // Pedal 14 - Expression (ADC1_CH5)
-    GPIO_NUM_0    // Pedal 15 - Digital Switch (shared with BOOT)
+  GPIO_NUM_25,  // Pedal  1 - Digital Switch
+  GPIO_NUM_26,  // Pedal  2 - Digital Switch
+  GPIO_NUM_27,  // Pedal  3 - Digital Switch
+  GPIO_NUM_14,  // Pedal  4 - Digital Switch
+  GPIO_NUM_13,  // Pedal  5 - Digital Switch
+  GPIO_NUM_19,  // Pedal  6 - Digital Switch
+  GPIO_NUM_23,  // Pedal  7 - Digital Switch
+  GPIO_NUM_17,  // Pedal  8 - Digital Switch
+  GPIO_NUM_16,  // Pedal  9 - Digital Switch (shared with BOOT)
+  GPIO_NUM_36,  // Pedal 10 - Expression (ADC1_CH0)
+  GPIO_NUM_39,  // Pedal 11 - Expression (ADC1_CH3)
+  GPIO_NUM_32,  // Pedal 12 - Expression (ADC1_CH6)
+  GPIO_NUM_33,  // Pedal 13 - Expression (ADC1_CH7)
+  GPIO_NUM_34,  // Pedal 14 - Expression (ADC1_CH4) Extern
+  GPIO_NUM_35,  // Pedal 15 - Expression (ADC1_CH5) Extern
+  GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
+  GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
 };
-#define FACTORY_DEFAULT_PIN   GPIO_NUM_0
+#define FACTORY_DEFAULT_PIN   GPIO_NUM_16 // nur für Boot Mode / initiales Setup
 #define USB_MIDI_IN_PIN       GPIO_NUM_18
-#define USB_MIDI_OUT_PIN      GPIO_NUM_19
+#define USB_MIDI_OUT_PIN      GPIO_NUM_2
 #define DIN_MIDI_IN_PIN       GPIO_NUM_15
 #define DIN_MIDI_OUT_PIN      GPIO_NUM_4
 #define FASTLEDS_DATA_PIN     GPIO_NUM_5

@@ -533,26 +533,26 @@ void loop()
   // https://github.com/davidlmorris/FastLED_Hang_Fix_Demo
   // It has no effect when not in diagnostic screen
 
-    if (scrollingMode && !displayOff) {
-      switch (currentProfile) {
-        case 0:
-          fireocean_loop();
-          //plasma();
-          //pride();
-          //blendwave();
-          //ease2();
-          break;
-        case 1:
-          pacifica_loop(); 
-          break;
-        case 2:
-          //blur();
-          //confetti_pal();
-          pride();
-          break;
-      }
-      FastLED.show();
-    }
+    // if (scrollingMode && !displayOff) {
+    //   switch (currentProfile) {
+    //     case 0:
+    //       fireocean_loop();
+    //       //plasma();
+    //       //pride();
+    //       //blendwave();
+    //       //ease2();
+    //       break;
+    //     case 1:
+    //       pacifica_loop(); 
+    //       break;
+    //     case 2:
+    //       //blur();
+    //       //confetti_pal();
+    //       pride();
+    //       break;
+    //   }
+    //   FastLED.show();
+    // }
 
   scanLoop = micros() - startClock;
 }

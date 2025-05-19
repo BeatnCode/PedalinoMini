@@ -29,14 +29,15 @@
 // #define OLED_I2C_SCL      22
 // SH1106Wire                display(OLED_I2C_ADDRESS, OLED_I2C_SDA, OLED_I2C_SCL);
 // #endif
-// #if defined(SSH1106WIRE)
-// #include <SH1106Wire.h>
-// #include <OLEDDisplayUi.h>
-// #define OLED_I2C_ADDRESS  0x3c
-// #define OLED_I2C_SDA      SDA
-// #define OLED_I2C_SCL      SCL
-// SH1106Wire                display(OLED_I2C_ADDRESS, OLED_I2C_SDA, OLED_I2C_SCL);
-// #endif
+#if defined(SSH1106WIRE)
+#include <SH1106Wire.h>
+#include <OLEDDisplayUi.h>
+#define OLED_I2C_ADDRESS  0x3c
+#define OLED_I2C_SDA      SDA
+#define OLED_I2C_SCL      SCL
+SH1106Wire                display(OLED_I2C_ADDRESS, OLED_I2C_SDA, OLED_I2C_SCL);
+#endif
+
 #if defined(SSD1306WIRE)
 #include <SSD1306Wire.h>
 #include <OLEDDisplayUi.h>

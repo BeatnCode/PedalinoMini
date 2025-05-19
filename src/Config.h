@@ -12,6 +12,7 @@
 
 #include <ArduinoJson.h>
 #include <SPIFFS.h>
+#include "esp_task_wdt.h"
 
 #ifdef NVS
 #include <Preferences.h>
@@ -275,9 +276,13 @@ void spiffs_remove_profile(byte profile) {
   profile = constrain(profile, 0, PROFILES - 1);
 
   spiffs_remove_file("/" + String(profile) + "/pedals.json");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_remove_file("/" + String(profile) + "/interfaces.json");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_remove_file("/" + String(profile) + "/actions.json");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_remove_file("/" + String(profile) + "/sequences.json");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
 
 }
 
@@ -357,6 +362,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (savePedals) {
     JsonArray jpedals = jdoc["Pedals"].to<JsonArray>();
     for (byte p = 0; p < PEDALS; p++) {
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       JsonObject jo = jpedals.add<JsonObject>();
       jo["Pedal"]             = p + 1;
       jo["Mode"]              = pedalModeName[pedals[p].mode];
@@ -375,6 +381,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (saveControls) {
     JsonArray jpedals = jdoc["Controls"].to<JsonArray>();
     for (byte c = 0; c < CONTROLS; c++) {
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       if (control_not_defined(c)) continue;
       JsonObject jo = jpedals.add<JsonObject>();
       jo["Control"]            = c + 1;
@@ -389,6 +396,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (saveActions) {
     JsonArray jbnames = jdoc["BankNames"].to<JsonArray>();
     for (byte b = 0; b < BANKS; b++) {
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       JsonObject jo = jbnames.add<JsonObject>();
       jo["Bank"]              = b;
       jo["Name"]              = banknames[b];
@@ -399,6 +407,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
     for (byte b = 0; b < BANKS; b++) {
       action *act = actions[b];
       while (act != nullptr) {
+        vTaskDelay(1); // Feed the watchdog of FreeRTOS
         char color[8];
         JsonObject jo = jactions.add<JsonObject>();
         jo["Bank"]            = b;
@@ -426,6 +435,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (saveInterfaces) {
     JsonArray jinterfaces = jdoc["Interfaces"].to<JsonArray>();
     for (byte i = 0; i < INTERFACES; i++) {
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       JsonObject jo = jinterfaces.add<JsonObject>();
       jo["Interface"]       = i + 1;
       jo["Name"]            = interfaces[i].name;
@@ -441,6 +451,7 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (saveSequences) {
     JsonArray jsequences = jdoc["Sequences"].to<JsonArray>();
     for (byte s = 0; s < SEQUENCES; s++) {
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       for (byte t = 0; t < STEPS; t++) {
         JsonObject jo = jsequences.add<JsonObject>();
         jo["Sequence"]    = s + 1;
@@ -464,25 +475,31 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
     }
   }
 
-#ifndef BOARD_HAS_PSRAM
-  jdoc.shrinkToFit();
-  DPRINT("Memory used by JSON document: %d bytes\n", measureJson(jdoc));
-#endif
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
+  #ifndef BOARD_HAS_PSRAM
+    jdoc.shrinkToFit();
+    DPRINT("Memory used by JSON document: %d bytes\n", measureJson(jdoc));
+  #endif
 
   if (SPIFFS.exists(filename) && !SPIFFS.remove(filename)) {
     DPRINTLN("SPIFFS: can't remove file %s\n", filename.c_str());
     return;
   }
-
   if ((SPIFFS.totalBytes() - SPIFFS.usedBytes()) < (measureJson(jdoc) + 1)) {
     DPRINTLN("SPIFFS: not enough space to write file %s\n", filename.c_str());
     return;
   }
 
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   DPRINT("Writing %s to SPIFFS ... ", filename.c_str());
+
+  // Watchdog für aktuellen Task deaktivieren
+  esp_task_wdt_delete(NULL);
+
   File file = SPIFFS.open(filename, FILE_WRITE);
   if (!file) {
     DPRINT("can't open file\n");
+    esp_task_wdt_add(NULL);  // Watchdog wieder aktivieren
     return;
   }
 
@@ -490,10 +507,14 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
   if (serializeJson(jdoc, file) == 0) {
     DPRINT("serializeJson() failed to write %d bytes\n", measureJson(jdoc));
     file.close();
+    esp_task_wdt_add(NULL);  // Watchdog wieder aktivieren
     return;
   }
-
   file.close();
+
+  // Watchdog für aktuellen Task wieder aktivieren (Timeout z. B. 3 Sekunden)
+  esp_task_wdt_add(NULL);             // Standard-Task
+
   DPRINT("done (%d bytes written)\n", measureJson(jdoc));
 }
 
@@ -517,9 +538,13 @@ void spiffs_save_profile(byte profile) {
   profile = constrain(profile, 0, PROFILES - 1);
 
   spiffs_save_config("/" + String(profile) + "/pedals.json",     false, true,  false, false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_save_config("/" + String(profile) + "/interfaces.json", false, false, true,  false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_save_config("/" + String(profile) + "/actions.json",    true,  false, false, false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_save_config("/" + String(profile) + "/sequences.json",  false, false, false, true,  false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
 
 }
 
@@ -542,8 +567,9 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
     DPRINT("can't open file\n");
     return;
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   DeserializationError err = deserializeJson(jdoc, file);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (err) {
     DPRINT("deserializeJson() failed with code %s\n", err.c_str());
     return;
@@ -561,10 +587,12 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
   JsonObject jro = jdoc.as<JsonObject>();
   // Loop through all the key-value pairs in obj
   for (JsonPair jp : jro) {
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     if (loadOptions && String(jp.key().c_str()) == String("Globals")) {
       if (jp.value().is<JsonArray>()) {
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           host                = String((const char *)(jo["Hostname"]              | host.c_str()));
           bootMode            = jo["BootMode"]                                    | bootMode;
           bleServer           = String((const char *)(jo["BLEServer"]             | bleServer.c_str()));
@@ -620,6 +648,7 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
       if (jp.value().is<JsonArray>()) {
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           int p = jo["Pedal"];
           p--;
           p = constrain(p, 0, PEDALS - 1);
@@ -661,6 +690,7 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
       if (jp.value().is<JsonArray>()) {
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           int c = jo["Control"];
           c = constrain(c - 1, 0, CONTROLS - 1);
           controls[c].pedal1  = jo["Pedal1"];
@@ -691,6 +721,7 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
         if (!append) delete_actions();
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           unsigned int red, green, blue;
           int b = jo["Bank"];
           b = constrain(b, 0, BANKS - 1);
@@ -765,6 +796,7 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
       if (jp.value().is<JsonArray>()) {
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           int i = jo["Interface"];
           i--;
           i = constrain(i, 0, INTERFACES - 1);
@@ -782,6 +814,7 @@ void spiffs_load_config(const String& filename, bool loadActions = true, bool lo
       if (jp.value().is<JsonArray>()) {
         JsonArray ja = jp.value();
         for (JsonObject jo : ja) {
+          vTaskDelay(1); // Feed the watchdog of FreeRTOS
           unsigned int red, green, blue;
           int s = jo["Sequence"];
           s--;
@@ -833,8 +866,11 @@ void spiffs_load_profile(byte profile) {
   profile = constrain(profile, 0, PROFILES - 1);
 
   spiffs_load_config("/" + String(profile) + "/pedals.json",     false, true,  false, false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_load_config("/" + String(profile) + "/interfaces.json", false, false, true,  false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_load_config("/" + String(profile) + "/actions.json",    true,  false, false, false, false);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   spiffs_load_config("/" + String(profile) + "/sequences.json",  false, false, false, true,  false);
 
 }
@@ -879,7 +915,7 @@ void load_factory_default()
   }
   strlcpy(banknames[0], "Global", MAXBANKNAME+1);
 
-  for (byte p = 0; p < PEDALS; p++)
+  for (byte p = 0; p < PEDALS; p++) {
     pedals[p] = {PED_DISABLE,    // autosensing
                  PED_MOMENTARY1, // mode
                  PED_PRESS_1,    // press mode
@@ -908,6 +944,7 @@ void load_factory_default()
                  nullptr, nullptr, nullptr, nullptr,
                  nullptr
                 };
+  }
   action *act;
   act = actions[0] = (action*)malloc(sizeof(action));
   act->tag0[0]      = 0;
@@ -1377,13 +1414,21 @@ void eeprom_update_profile(byte profile = currentProfile)
       pedals_copy[i].expMax      = 0;
     }
   };
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putBytes("Pedals",      &pedals_copy, sizeof(pedals));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putBytes("Controls",    &controls,    sizeof(controls));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putBytes("BankNames",   &banknames,   sizeof(banknames));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putBytes("Interfaces",  &interfaces,  sizeof(interfaces));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putBytes("Sequences",   &sequences,   sizeof(sequences));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putUChar("Current Bank", currentBank);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.putUChar("Current MTC", currentMidiTimeCode);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
 
   for (byte b = 0; b < BANKS; b++) {
     char    label[10];
@@ -1539,8 +1584,9 @@ void eeprom_read_profile(byte profile = currentProfile)
       break;
   }
   DPRINT(" ... ");
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.getBytes("Pedals",      &pedals,      sizeof(pedals));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   for (byte i = 0; i < PEDALS; i++) {
     pedals[i].pedalValue[0] = 0;
     pedals[i].pedalValue[1] = 0;
@@ -1560,12 +1606,19 @@ void eeprom_read_profile(byte profile = currentProfile)
       pedals[i].expMax      = 0;
     }
   }
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.getBytes("Controls",    &controls,    sizeof(controls));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.getBytes("BankNames",   &banknames,   sizeof(banknames));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.getBytes("Interfaces",  &interfaces,  sizeof(interfaces));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   preferences.getBytes("Sequences",   &sequences,   sizeof(sequences));
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   currentBank         = preferences.getUChar("Current Bank");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   currentMidiTimeCode = preferences.getUChar("Current MTC");
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
 
   for (byte b = 0; b < BANKS; b++) {
     char label[10];
@@ -1605,23 +1658,40 @@ void eeprom_update_globals()
 {
 #ifdef NVS
   eeprom_update_device_name(host);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_boot_mode(bootMode);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_ble_server(bleServer);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_sta_wifi_credentials(wifiSSID, wifiPassword);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_ap_wifi_credentials(ssidSoftAP, passwordSoftAP);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_login_credentials(httpUsername, httpPassword);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_theme(theme);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_current_profile(currentProfile);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_screen_saver(screenSaverTimeout);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_flip_screen(flipScreen);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_tap_dance(tapDanceMode);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_repeat_on_bank_switch(repeatOnBankSwitch);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_press_time(debounceInterval, simultaneousGapTime, pressTime, doublePressTime, longPressTime, repeatPressTime);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_ladder();
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_leds(leds);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_rgb_order(rgbOrder);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   // eeprom_update_encoder_sensitivity(encoderSensitivity);
   eeprom_update_leds_brightness(ledsOnBrightness, ledsOffBrightness);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   eeprom_update_osc_parameters(oscLocalPort, oscRemoteHost, oscRemotePort);
 #else
   spiffs_save_globals();
@@ -1710,7 +1780,6 @@ void eeprom_init_or_erase()
   }
 #endif
 }
-
 
 void send_configuration_sysex()
 {
