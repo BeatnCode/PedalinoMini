@@ -3059,6 +3059,11 @@ void get_sequences_page(unsigned int start, unsigned int len) {
     page += F("'");
     if (sequences[s-1][i-1].midiMessage == PED_ACTION_LED_COLOR) page += F(" selected");
     page += F(">Set Led Color</option>");
+    page += F("<option value='");
+    page += PED_ACTION_SET_LATCH_STATUS;
+    page += F("'");
+    if (sequences[s-1][i-1].midiMessage == PED_ACTION_SET_LATCH_STATUS) page += F(" selected");
+    page += F(">Set Pedal Latch Status</option>");
     page += F("</select>");
     page += F("<label for='messageSelect");
     page += i;
@@ -3313,6 +3318,9 @@ void get_sequences_page(unsigned int start, unsigned int len) {
             "       document.getElementById('channelSelect' + i).disabled = true;"
             "       document.getElementById('codeInput'     + i).disabled = true;"
             "       document.getElementById('valueInput'    + i).disabled = true;"
+            "       break;"
+            "     case 'Set Pedal Latch Status':"
+            "       document.getElementById('codeInput'     + i).disabled = true;"
             "       break;"
             "     case 'Start':"
             "     case 'Stop':"

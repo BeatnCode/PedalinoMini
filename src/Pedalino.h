@@ -182,6 +182,7 @@ using namespace ace_button;
 #define PED_ACTION_MTC_OFF            45
 #define PED_ACTION_MTC_TIME_SIGNATURE 46
 #define PED_OSC_MESSAGE               50
+#define PED_ACTION_SET_LATCH_STATUS   60
 #define PED_ACTION_SCAN               98
 #define PED_ACTION_POWER_ON_OFF       99
 
