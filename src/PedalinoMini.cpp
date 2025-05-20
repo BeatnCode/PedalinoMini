@@ -211,7 +211,9 @@ void setup()
 
   DPRINT("Sketch Size %d bytes, Firmware Hash %s\n", sketchSize, sketchMD5.c_str());
 
-  FastLED.addLeds<WS2812B, FASTLEDS_DATA_PIN, LED_RGB_ORDER>(fastleds, LEDS);
+
+  #define SmartStompCalibration 0xFFE274 //* 255, 226, 116 */,
+  FastLED.addLeds<WS2812B, FASTLEDS_DATA_PIN, LED_RGB_ORDER>(fastleds, LEDS).setCorrection( SmartStompCalibration );
   fill_solid(fastleds, LEDS, CRGB::Black);
   FastLED.show();
   lastColor0 = CRGB::Black;
@@ -253,10 +255,10 @@ void setup()
     
     // Calculate how many LEDs to light based on progress within current option
     // We want 1 LED at start, up to 4 at end of each option's time window
-    int activeLeds = 1 + int(optionProgress * 4);  // 1 to 4 LEDs
+    int activeLeds = 1 + int(optionProgress * 7);  // 1 to 4 LEDs
     
     // Ensure we have at least 1 LED lit, even at the very beginning
-    activeLeds = max(1, min(activeLeds, 4));
+    activeLeds = max(1, min(activeLeds, 7));
     
     // Update LED colors based on current boot option
     // fill_solid(fastleds, LEDS, CRGB::Black);  // Turn all LEDs off first

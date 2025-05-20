@@ -1012,15 +1012,15 @@ void load_factory_default()
       c++;
     }
   }
-  c = 6 * LADDER_STEPS;
-  for (byte p = 6; p < PEDALS; p++) {
-    controls[c].pedal1  = p;
-    controls[c].button1 = 0;
-    controls[c].pedal2  = PEDALS;
-    controls[c].button2 = LADDER_STEPS;
-    controls[c].led     = LEDS;
-    c++;
-  }
+  // c = 6 * LADDER_STEPS;
+  // for (byte p = 6; p < PEDALS; p++) {
+  //   controls[c].pedal1  = p;
+  //   controls[c].button1 = 0;
+  //   controls[c].pedal2  = PEDALS;
+  //   controls[c].button2 = LADDER_STEPS;
+  //   controls[c].led     = LEDS;
+  //   c++;
+  // }
   for (byte i = 0; i < INTERFACES; i++) {
     interfaces[i].midiIn      = PED_ENABLE;
     interfaces[i].midiOut     = PED_ENABLE;

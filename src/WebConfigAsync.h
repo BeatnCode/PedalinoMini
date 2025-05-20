@@ -35,7 +35,7 @@ String uicontrol     = "All";
 String uicontrolpage = "1";
 String uisequence    = "1";
 
-#define CONTROLS_PER_PAGE   15
+#define CONTROLS_PER_PAGE   25
 
 bool fullPageCompleted = false;
 

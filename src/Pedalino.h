@@ -21,17 +21,17 @@
 #define MODEL           "PedalinoMini 🐦‍🔥"
 
 #define INTERFACES        6
-#define PROFILES          2
+#define PROFILES          3
 #define BANKS             3   // 20 banks + 1 bank for global actions
 #define PEDALS           17   // real number of pedals is board specific (see below)
-#define CONTROLS         (36 + 17) // ab 36 für ladder steps?
+#define CONTROLS         25   // (36 + 17) // ab 36 für ladder steps?
 #define SEQUENCES        25
 #define STEPS            10   // number of steps for each sequence
 #define LADDER_STEPS      6   // max number of controls in a resistor ladder
 #define ADC_BOARDS        4   //
 #define ADC_INPUTS        4   // ADS1115 number of analog inputs
 #define ADC_CHANNELS      (ADC_BOARDS * ADC_INPUTS)
-#define LEDS             20   // number of WS2812B leds (254 max)
+#define LEDS             12   // number of WS2812B leds (254 max)
 #define LED_RGB_ORDER   GRB   // RGB order, will identify as "RGB" in the webUI
 #define SLOTS_ROWS        2
 #define SLOTS_COLS        3
