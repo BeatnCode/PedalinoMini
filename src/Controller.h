@@ -27,6 +27,9 @@ std::list<event>   backlog;
 bool lastSeqenceStepFWD[SEQUENCES];
 bool lastSeqenceStepREV[SEQUENCES];
 
+unsigned int lastOutputValueEXP1 = 0;
+unsigned int lastOutputValueEXP2 = 0; 
+
 void refresh_analog(byte, bool);
 
 unsigned int map_analog(byte p, unsigned int value)
@@ -1876,6 +1879,41 @@ void refresh_analog(byte i, bool send)
   if (pedals[i].analogPedal[0] == nullptr) return;          // sanity check
 
   input = analogRead(PIN_A(i));                             // read the raw analog input value
+
+  // Max. voltage detection for EXP1/EXP2 -> Control 16/17 with button 2 for Pedal 14/15
+  if (i == 13) { // Pedal 14: EXP1
+    if (lastOutputValueEXP1 == 0) {
+      if (input > 820) {
+        DPRINT("EXP1 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+        controller_event_handler_analog(i, 1, 1023);
+        lastOutputValueEXP1 = 1023;
+      }
+    }
+    if (lastOutputValueEXP1 == 1023) {
+      if (input <= 800) {
+        DPRINT("EXP1 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+        controller_event_handler_analog(i, 1, 0);
+        lastOutputValueEXP1 = 0;
+      }
+    }
+  }
+  if (i == 14) { // Pedal 15: EXP2
+    if (lastOutputValueEXP2 == 0) {
+      if (input > 820) {
+        DPRINT("EXP2 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+        controller_event_handler_analog(i, 1, 1023);
+        lastOutputValueEXP2 = 1023;
+      }
+    }
+    if (lastOutputValueEXP2 == 1023) {
+      if (input <= 800) {
+        DPRINT("EXP2 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+        controller_event_handler_analog(i, 1, 0);
+        lastOutputValueEXP2 = 0;
+      }
+    }
+  }
+  
   if (pedals[i].autoSensing) {                              // continuos calibration
     if (pedals[i].expZero > (input + SAFE_ZONE)) {
       pedals[i].expZero = constrain(input + SAFE_ZONE, SAFE_ZONE, ADC_RESOLUTION - 1 - SAFE_ZONE);

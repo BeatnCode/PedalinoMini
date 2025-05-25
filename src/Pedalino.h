@@ -23,7 +23,7 @@
 #define INTERFACES        6
 #define PROFILES          3
 #define BANKS             3   // 20 banks + 1 bank for global actions
-#define PEDALS           17   // real number of pedals is board specific (see below)
+#define PEDALS           15   // real number of pedals is board specific (see below)
 #define CONTROLS         25   // (36 + 17) // ab 36 für ladder steps?
 #define SEQUENCES        25
 #define STEPS            10   // number of steps for each sequence
@@ -66,9 +66,9 @@ const byte pinD[] = {
   GPIO_NUM_32,  // Pedal 12 - Expression (ADC1_CH6)
   GPIO_NUM_33,  // Pedal 13 - Expression (ADC1_CH7)
   GPIO_NUM_34,  // Pedal 14 - Expression (ADC1_CH4) Extern
-  GPIO_NUM_35,  // Pedal 15 - Expression (ADC1_CH5) Extern
-  GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
-  GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
+  GPIO_NUM_35   // Pedal 15 - Expression (ADC1_CH5) Extern
+  // GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
+  // GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
 };
 
 // Analog pins for expression pedals
@@ -87,9 +87,9 @@ const byte pinA[] = {
   GPIO_NUM_32,  // Pedal 12 - Expression (ADC1_CH6)
   GPIO_NUM_33,  // Pedal 13 - Expression (ADC1_CH7)
   GPIO_NUM_34,  // Pedal 14 - Expression (ADC1_CH4) Extern
-  GPIO_NUM_35,  // Pedal 15 - Expression (ADC1_CH5) Extern
-  GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
-  GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
+  GPIO_NUM_35   // Pedal 15 - Expression (ADC1_CH5) Extern
+  // GPIO_NUM_34,  // Pedal 14a - Expression (ADC1_CH3) Extern
+  // GPIO_NUM_35   // Pedal 15a - Expression (ADC1_CH3) Extern
 };
 #define FACTORY_DEFAULT_PIN   GPIO_NUM_16 // nur für Boot Mode / initiales Setup
 #define USB_MIDI_IN_PIN       GPIO_NUM_18
