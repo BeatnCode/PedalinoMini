@@ -1475,11 +1475,14 @@ void fire_action(action* act, byte p, byte i, byte e)
             break;
 
             case PED_ACTION_SCAN:
-              scannerActivated = !scannerActivated;
-              leds_refresh();
-              DPRINT("SCANNER ACTIVATED\n");
-              //send_configuration_sysex();
-              break;
+
+              #ifdef DIAGNOSTIC // DIAGNOSTIC
+                scannerActivated = !scannerActivated;
+                leds_refresh();
+                DPRINT("SCANNER ACTIVATED\n");
+                //send_configuration_sysex();
+                break;
+              #endif // DIAGNOSTIC
 
             case PED_ACTION_DEVICE_INFO:
               scrollingMode = !scrollingMode;
@@ -1894,12 +1897,15 @@ void refresh_analog(byte i, bool send)
     if (send) controller_event_handler_analog(i, 0, value);
     pedals[i].pedalValue[0] = value;
     pedals[i].lastUpdate[0] = micros();
+
+    #ifdef DIAGNOSTIC // DIAGNOSTIC
     if (scannerActivated) {
       scanPedal = i;
       scanIndex = (scanIndex + 1) % POINTS;
       scan[scanIndex] = input;
       scanProcessed[scanIndex] = value;
     }
+    #endif // DIAGNOSTIC
   }
 }
 
@@ -1932,12 +1938,14 @@ void refresh_analog4(int input, byte i, byte j, bool send)
     if (send) controller_event_handler_analog(i, j, value);
     pedals[i].pedalValue[0] = value;
     pedals[i].lastUpdate[0] = micros();
+    #ifdef DIAGNOSTIC // DIAGNOSTIC
     if (scannerActivated) {
       scanPedal = i;
       scanIndex = (scanIndex + 1) % POINTS;
       scan[scanIndex] = input;
       scanProcessed[scanIndex] = value;
     }
+    #endif // DIAGNOSTIC
   }
 }
 
@@ -1979,12 +1987,14 @@ void refresh_ultrasonic(bool send)
           if (send) controller_event_handler_analog(i, 0, value);
           pedals[i].pedalValue[0] = value;
           pedals[i].lastUpdate[0] = micros();
+          #ifdef DIAGNOSTIC // DIAGNOSTIC
           if (scannerActivated) {
             scanPedal = i;
             scanIndex = (scanIndex + 1) % POINTS;
             scan[scanIndex] = input;
             scanProcessed[scanIndex] = value;
           }
+          #endif // DIAGNOSTIC
         }
         p++;
       }
@@ -2179,6 +2189,7 @@ void controller_run(bool send = true)
             int pressure = map_analog(i, pedals[i].analogPad->velocity);                             // expand to [0, ADC_RESOLUTION-1] and apply the map function
             controller_event_handler_analog(i, 0, pressure);
           }
+          #ifdef DIAGNOSTIC // DIAGNOSTIC
           if (scannerActivated) {
             int v = analogRead(PIN_A(i));
             if (v != 0 && scan[scanIndex] == 0) {
@@ -2188,6 +2199,7 @@ void controller_run(bool send = true)
             scanIndex = (v == 0 ? 0 : (scanIndex + 1) % POINTS);
             scan[scanIndex] = v;
           }
+          #endif // DIAGNOSTIC
         }
         break;
 

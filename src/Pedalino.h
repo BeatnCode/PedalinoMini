@@ -515,13 +515,13 @@ RTC_DATA_ATTR byte batteryHistory[POINTS];          // 0% =  3.0V    100% =  5.0
 RTC_DATA_ATTR byte scanLoopHistory[POINTS];         // 0% =   0us    100% =  10ms
 RTC_DATA_ATTR byte serviceLoopHistory[POINTS];      // 0% =   0ms    100% =  10ms
 
-#endif // DIAGNOSTIC
 
 uint16_t  scan[POINTS];
 uint16_t  scanProcessed[POINTS];
 uint16_t  scanIndex = 0;
 bool      scannerActivated = false;
 byte      scanPedal = 0;
+#endif // DIAGNOSTIC
 
 bool powersaver = false;
 byte firmwareUpdate = PED_UPDATE_NONE;
