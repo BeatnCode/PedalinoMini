@@ -99,6 +99,7 @@ byte ActionStringToEnum (String msg)
   else if (msg.equals("Profile-"))            return PED_ACTION_PROFILE_MINUS;
 
   else if (msg.equals("Set Led Color"))       return PED_ACTION_LED_COLOR;
+  else if (msg.equals("Set Pedal Latch Status"))       return PED_ACTION_SET_LATCH_STATUS;
 
   else if (msg.equals("Repeat"))              return PED_ACTION_REPEAT;
   else if (msg.equals("Repeat Overwrite"))    return PED_ACTION_REPEAT_OVERWRITE;
