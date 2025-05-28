@@ -3321,6 +3321,8 @@ void get_sequences_page(unsigned int start, unsigned int len) {
             "       break;"
             "     case 'Set Pedal Latch Status':"
             "       document.getElementById('codeInput'     + i).disabled = true;"
+            "       document.getElementById('channelLabel'    + i).textContent = 'Pedal';"
+            "       document.getElementById('valueLabel'    + i).textContent = 'Status';"
             "       break;"
             "     case 'Start':"
             "     case 'Stop':"
@@ -5180,13 +5182,15 @@ void http_handle_post_actions(AsyncWebServerRequest *request) {
     create_banks();
     leds_refresh();
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     if (request->arg("action").equals("save")) {
       eeprom_update_profile();
+      vTaskDelay(1); // Feed the watchdog of FreeRTOS
       eeprom_update_current_profile(currentProfile);
       alert = "Changes saved.";
     }
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_actions_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5267,17 +5271,19 @@ void http_handle_post_pedals(AsyncWebServerRequest *request) {
       pedals[i].autoSensing = PED_DISABLE;
   }
 
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (request->arg("action").equals("apply")) {
     loadConfig = true;
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
   }
   else if (request->arg("action").equals("save")) {
     eeprom_update_profile();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_current_profile(currentProfile);
     loadConfig = true;
     alert = "Changes saved.";
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_pedals_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5306,17 +5312,19 @@ void http_handle_post_controls(AsyncWebServerRequest *request) {
     // controls[i].led = (a.toInt() == 0 ? LEDS : constrain(a.toInt() - 1, 0, LEDS - 1));
   }
 
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (request->arg("action").equals("apply")) {
     loadConfig = true;
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
   }
   else if (request->arg("action").equals("save")) {
     eeprom_update_profile();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_current_profile(currentProfile);
     loadConfig = true;
     alert = "Changes saved.";
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_controls_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5346,15 +5354,17 @@ void http_handle_post_interfaces(AsyncWebServerRequest *request) {
     a = request->arg(String("clock") + String(i+1));
     interfaces[i].midiClock = (a == checked) ? PED_ENABLE : PED_DISABLE;
   }
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (request->arg("action").equals("apply")) {
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
   }
   else if (request->arg("action").equals("save")) {
     eeprom_update_profile();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_current_profile(currentProfile);
     alert = "Changes saved.";
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_interfaces_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5397,15 +5407,17 @@ void http_handle_post_sequences(AsyncWebServerRequest *request) {
     sscanf(request->arg(String("color") + String(i+1)).c_str(), "#%02x%02x%02x", &red, &green, &blue);
     sequences[s][i].color = ((red & 0xff) << 16) | ((green & 0xff) << 8) | (blue & 0xff);
   }
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (request->arg("action").equals("apply")) {
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
   }
   else if (request->arg("action").equals("save")) {
     eeprom_update_profile();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_current_profile(currentProfile);
     alert = "Changes saved.";
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_sequences_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5586,12 +5598,13 @@ void http_handle_post_options(AsyncWebServerRequest *request) {
     oscUDPout.close();
     oscUDPout.connect(oscRemoteIp, oscRemotePort);
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   if (request->arg("action").equals("apply")) {
     alert = F("Changes applied. Changes will be lost on next reboot or on profile switch if not saved.");
   }
   else if (request->arg("action").equals("save")) {
     eeprom_update_globals();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     alert = "Changes saved.";
   }
   else if (request->arg("action").equals("factorydefault")) {
@@ -5604,7 +5617,7 @@ void http_handle_post_options(AsyncWebServerRequest *request) {
   else if (request->arg("action").equals("poweroff")) {
     poweroffRequired = true;
   }
-
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_options_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
@@ -5709,8 +5722,11 @@ void http_handle_post_configurations(AsyncWebServerRequest *request) {
                        request->arg("action").equals("appendsave"));
     sort_actions();
     create_banks();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_globals();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     eeprom_update_profile();
+    vTaskDelay(1); // Feed the watchdog of FreeRTOS
     reloadProfile = true;
     config = config.substring(1, config.length() - 4);
     alert = F("Configuration '");
@@ -5733,6 +5749,7 @@ void http_handle_post_configurations(AsyncWebServerRequest *request) {
       alertError += config + F("'.");
     }
   }
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   AsyncWebServerResponse *response = request->beginChunkedResponse("text/html", get_configurations_page_chunked);
   response->addHeader("Connection", "close");
   request->send(response);
