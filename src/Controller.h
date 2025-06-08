@@ -28,7 +28,9 @@ bool lastSeqenceStepFWD[SEQUENCES];
 bool lastSeqenceStepREV[SEQUENCES];
 
 unsigned int lastOutputValueEXP1 = 0;
-unsigned int lastOutputValueEXP2 = 0; 
+unsigned int lastOutputValueEXP2 = 0;
+unsigned long lastValueMillisEXP1 = 0;
+unsigned long lastValueMillisEXP2 = 0;
 
 void refresh_analog(byte, bool);
 
@@ -1878,9 +1880,12 @@ void refresh_analog(byte i, bool send)
   if (i == 13) { // Pedal 14: EXP1
     if (lastOutputValueEXP1 == 0) {
       if (input > 820) {
-        DPRINT("EXP1 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
-        controller_event_handler_analog(i, 1, 1023);
-        lastOutputValueEXP1 = 1023;
+        if (millis() - lastValueMillisEXP1 > 500) {
+          DPRINT("EXP1 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+          controller_event_handler_analog(i, 1, 1023);
+          lastOutputValueEXP1 = 1023;
+          lastValueMillisEXP1 = millis();
+        }
       }
     }
     if (lastOutputValueEXP1 == 1023) {
@@ -1894,9 +1899,12 @@ void refresh_analog(byte i, bool send)
   if (i == 14) { // Pedal 15: EXP2
     if (lastOutputValueEXP2 == 0) {
       if (input > 820) {
-        DPRINT("EXP2 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
-        controller_event_handler_analog(i, 1, 1023);
-        lastOutputValueEXP2 = 1023;
+        if (millis() - lastValueMillisEXP2 > 500) {
+          DPRINT("EXP2 EXTRA INPUT: Pedal %2d   input %d\n", i + 1, input);
+          controller_event_handler_analog(i, 1, 1023);
+          lastOutputValueEXP2 = 1023;
+          lastValueMillisEXP2 = millis();
+        }
       }
     }
     if (lastOutputValueEXP2 == 1023) {
