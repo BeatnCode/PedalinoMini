@@ -1064,6 +1064,7 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
         fastleds[l] = swap_rgb_order(fastleds[l], rgbOrder);
         FastLED.show();
         lastLedColor[currentBank][l] = fastleds[l];
+
         if (sequences[channel][s].midiMessage == PED_ACTION_SET_LATCH_STATUS) {
           // midiChannel = pedal number
           // latchStatus = midiValue
@@ -1072,7 +1073,13 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
             pedalNumber = sequences[channel][s].midiChannel - 1;
             if (sequences[channel][s].midiValue < 2) { // only 0 and 1
               pedals[pedalNumber].latchStatus[0] = sequences[channel][s].midiValue;
-              DPRINT("LATCH STATUS Pedal %d: %d\n", pedalNumber + 1, sequences[channel][s].midiValue);
+              if (sequences[channel][s].midiValue == 0) {
+                currentMIDIValue[currentBank][pedalNumber][0] = banks[currentBank][pedalNumber].midiValue1;
+                DPRINT("LATCH STATUS Pedal %d: OFF\n", pedalNumber + 1);
+              } else {
+                currentMIDIValue[currentBank][pedalNumber][0] = banks[currentBank][pedalNumber].midiValue2;
+                DPRINT("LATCH STATUS Pedal %d: ON\n", pedalNumber + 1);
+              }
             }
           }
         }
