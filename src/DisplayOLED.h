@@ -903,8 +903,12 @@ void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int1
           display->drawRect(0, 23, 128, 29);
           name = (banknames[currentBank][0] == ':') ? &banknames[currentBank][1] : banknames[currentBank];
           name.replace(String("##"), String(currentBank));
-          display->setFont(ArialMT_Plain_24);
           display->setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
+          if (name.length() > 9) {
+            display->setFont(ArialMT_Plain_16);
+          } else {
+            display->setFont(ArialMT_Plain_24);
+          }
           display->drawString( 64 + x, 37 + y, name);
         }
         else if (((millis() - ms < 8000) || (banknames[currentBank][0] == '.')) && (banknames[currentBank][0] != ':')) {

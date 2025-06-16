@@ -227,6 +227,9 @@ String ActionEnumToString (byte msg)
           case PED_ACTION_LED_COLOR:
             return "Set Led Color";
             break;
+          case PED_ACTION_SET_LATCH_STATUS:
+            return "Set Pedal Latch Status";
+            break;
           case PED_ACTION_REPEAT:
             return "Repeat";
             break;
