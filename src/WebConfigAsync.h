@@ -1330,6 +1330,11 @@ void get_actions_page(unsigned int start, unsigned int len) {
     page += F("'");
     if (act->midiMessage == PED_SEQUENCE_STEP_BY_STEP_REV) page += F(" selected");
     page += F(">Step by Step-</option>");
+    page += F("<option value='");
+    page += PED_SEQUENCE_STEP_REPEAT;
+    page += F("'");
+    if (act->midiMessage == PED_SEQUENCE_STEP_REPEAT) page += F(" selected");
+    page += F(">Step Repeat</option>");
     page += F("</optgroup>");
 
     page += F("</select>");
@@ -1908,6 +1913,7 @@ void get_actions_page(unsigned int start, unsigned int len) {
             "       break;"
             "     case 'Step by Step+':"
             "     case 'Step by Step-':"
+            "     case 'Step Repeat':"
             "       document.getElementById('channelDiv'    + i).setAttribute('hidden', 'hidden');"
             "       document.getElementById('sequenceDiv'   + i).removeAttribute('hidden');"
             "       document.getElementById('codeLabel'     + i).textContent = 'Step';"
@@ -5146,6 +5152,7 @@ void http_handle_post_actions(AsyncWebServerRequest *request) {
           case PED_SEQUENCE:
           case PED_SEQUENCE_STEP_BY_STEP_FWD:
           case PED_SEQUENCE_STEP_BY_STEP_REV:
+          case PED_SEQUENCE_STEP_REPEAT:
             act->midiChannel  = constrain(request->arg(String("sequence") + String(i)).toInt(), 1, SEQUENCES);
             act->color0   = CRGB::Black;
             act->color1   = CRGB::Black;

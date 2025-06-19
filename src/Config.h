@@ -75,6 +75,7 @@ byte ActionStringToEnum (String msg)
   else if (msg.equals("Sequence"))            return PED_SEQUENCE;
   else if (msg.equals("Step by Step+"))       return PED_SEQUENCE_STEP_BY_STEP_FWD;
   else if (msg.equals("Step by Step-"))       return PED_SEQUENCE_STEP_BY_STEP_REV;
+  else if (msg.equals("Step Repeat"))         return PED_SEQUENCE_STEP_REPEAT;
 
   else if (msg.equals("MIDI Clock Master"))   return PED_ACTION_MIDI_CLOCK_MASTER;
   else if (msg.equals("MIDI Clock Slave"))    return PED_ACTION_MIDI_CLOCK_SLAVE;
@@ -166,6 +167,9 @@ String ActionEnumToString (byte msg)
             break;
           case PED_SEQUENCE_STEP_BY_STEP_REV:
             return "Step by Step-";
+            break;
+          case PED_SEQUENCE_STEP_REPEAT:
+            return "Step Repeat";
             break;
           case PED_ACTION_MIDI_CLOCK_MASTER:
             return "MIDI Clock Master";

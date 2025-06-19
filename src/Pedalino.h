@@ -22,10 +22,10 @@
 
 #define INTERFACES        6
 #define PROFILES          3
-#define BANKS             3   // 20 banks + 1 bank for global actions
+#define BANKS            21   // 20 banks + 1 bank for global actions
 #define PEDALS           15   // real number of pedals is board specific (see below)
-#define CONTROLS         25   // (36 + 17) // ab 36 für ladder steps?
-#define SEQUENCES        25
+#define CONTROLS         25 
+#define SEQUENCES        20   
 #define STEPS            10   // number of steps for each sequence
 #define LADDER_STEPS      6   // max number of controls in a resistor ladder
 #define ADC_BOARDS        4   //
@@ -174,6 +174,7 @@ using namespace ace_button;
 #define PED_ACTION_REPEAT_OVERWRITE   35
 #define PED_SEQUENCE_STEP_BY_STEP_FWD 36
 #define PED_SEQUENCE_STEP_BY_STEP_REV 37
+#define PED_SEQUENCE_STEP_REPEAT      38
 #define PED_ACTION_MIDI_CLOCK_MASTER  40
 #define PED_ACTION_MIDI_CLOCK_SLAVE   41
 #define PED_ACTION_MIDI_CLOCK_OFF     42

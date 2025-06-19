@@ -354,6 +354,7 @@ void update_current_step()
           switch (a->midiMessage) {
             case PED_SEQUENCE_STEP_BY_STEP_FWD:
             case PED_SEQUENCE_STEP_BY_STEP_REV:
+            case PED_SEQUENCE_STEP_REPEAT:
               if (a->midiChannel == s + 1) {
                 a->midiCode = currentStep;
                 if (sequences[s][currentStep-1].led !=LEDS) set_last_led_color(b == 0 ? currentBank : b, led_control(a->control, a->led), sequences[s][currentStep-1].color, ledsOnBrightness);
@@ -1091,9 +1092,27 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
 
     case PED_SEQUENCE_STEP_BY_STEP_FWD:
     case PED_SEQUENCE_STEP_BY_STEP_REV:
-
+    case PED_SEQUENCE_STEP_REPEAT:
       channel = constrain(channel, 0, SEQUENCES - 1);
       byte step = constrain(code, 0, STEPS - 1);
+
+      if (message == PED_SEQUENCE_STEP_REPEAT) {
+        if (lastSeqenceStepREV[channel]) {
+        step = (step + 1 ) % STEPS;
+        step = (sequences[channel - 1][step].midiMessage == PED_EMPTY ? 0 : step);
+        }
+        if (lastSeqenceStepFWD[channel]) {
+          if (step == 0) {
+            byte s;
+            for (s = 0; s < STEPS; s++) {
+              if (sequences[channel - 1][s].midiMessage == PED_EMPTY) break;
+            }
+            if (s > 0) step = s - 1;
+          }
+          else if (step > 0) step--;
+        }
+      }
+
       DPRINT("SEQUENCE.....Number %2d.....Step %2d\n", channel + 1, step + 1);
       midi_send(sequences[channel][step].midiMessage, sequences[channel][step].midiCode, sequences[channel][step].midiValue, sequences[channel][step].midiChannel, on_off, 0, MIDI_RESOLUTION - 1, bank, pedal, button, led);
       byte l = (sequences[channel][step].led == 255 ? led : sequences[channel][step].led);
@@ -1198,6 +1217,7 @@ void fire_action(action* act, byte p, byte i, byte e)
                   switch (a->midiMessage) {
                     case PED_SEQUENCE_STEP_BY_STEP_FWD:
                     case PED_SEQUENCE_STEP_BY_STEP_REV:
+                    case PED_SEQUENCE_STEP_REPEAT:
                       if (a != act && a->midiChannel == act->midiChannel)   // different action and same sequence
                         a->midiCode = act->midiCode;                        // update current step for the sequence in other actions
                   }
@@ -1208,6 +1228,15 @@ void fire_action(action* act, byte p, byte i, byte e)
                 strlcpy(lastPedalName, act->tag0, MAXACTIONNAME+1);
               else
                 strlcpy(lastPedalName, act->tag1, MAXACTIONNAME+1);
+              break;
+
+            case PED_SEQUENCE_STEP_REPEAT:
+              act->midiChannel = constrain(act->midiChannel, 1, SEQUENCES);
+              act->midiCode    = constrain(act->midiCode, 0, STEPS - 1);
+              act->midiCode    = (sequences[act->midiChannel - 1][act->midiCode].midiMessage == PED_EMPTY) ? 0 : act->midiCode;
+              if (sequences[act->midiChannel - 1][0].midiMessage == PED_EMPTY) break;
+
+              midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel - 1, true, act->midiValue1, act->midiValue2, currentBank, p, i, led_control(act->control, act->led));
               break;
 
             case PED_PROGRAM_CHANGE:
@@ -1531,6 +1560,7 @@ void fire_action(action* act, byte p, byte i, byte e)
             case PED_SEQUENCE:
             case PED_SEQUENCE_STEP_BY_STEP_FWD:
             case PED_SEQUENCE_STEP_BY_STEP_REV:
+            case PED_SEQUENCE_STEP_REPEAT:
               break;
 
             case PED_PROGRAM_CHANGE:
