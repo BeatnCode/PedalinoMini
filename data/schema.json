@@ -334,6 +334,7 @@
                                 "Stop",
                                 "Continue",
                                 "Set Bank",
+                                "Set Last Bank",
                                 "Set Led Color",
                                 "Set Pedal Latch Status"]
                     },

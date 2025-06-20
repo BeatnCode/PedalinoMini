@@ -338,6 +338,7 @@ void update_current_step()
         case PED_EMPTY:
           break;
         case PED_ACTION_BANK:
+        case PED_ACTION_LAST_BANK:
           empty = false;
           if (sequences[s][i].midiValue == currentBank) currentStep = i + 1;
           break;
@@ -1031,6 +1032,7 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
       break;
 
     case PED_ACTION_BANK:                                           // only for Sequences
+      lastBank = currentBank;
       currentBank = constrain(value, 0, BANKS - 1);
       update_current_step();
       if (repeatOnBankSwitch)
@@ -1044,6 +1046,25 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
       leds_refresh();
       DPRINT("BANK.....%d\n", currentBank);
       break;
+
+    case PED_ACTION_LAST_BANK:
+    {
+      byte tempBank = lastBank;
+      lastBank = currentBank;
+      currentBank = constrain(tempBank, 0, BANKS - 1);
+      update_current_step();
+      if (repeatOnBankSwitch)
+      midi_send(lastMIDIMessage[currentBank].midiMessage,
+                  lastMIDIMessage[currentBank].midiCode,
+                  lastMIDIMessage[currentBank].midiValue,
+                  lastMIDIMessage[currentBank].midiChannel,
+                  true,
+                  0, MIDI_RESOLUTION - 1,
+                  currentBank, pedal, button);
+      leds_refresh();
+      DPRINT("BANK.....%d\n", currentBank);
+      break;
+    }
 
     case PED_SEQUENCE:
 
@@ -1329,6 +1350,7 @@ void fire_action(action* act, byte p, byte i, byte e)
               break;
 
             case PED_ACTION_BANK_PLUS:
+              lastBank = currentBank;
               currentBank = constrain((currentBank == constrain(act->midiValue2, 0, BANKS - 1)) ? act->midiValue1 : (currentBank + 1), 0, BANKS - 1);
               currentBank = constrain(currentBank, constrain(act->midiValue1, 0, BANKS - 1), constrain(act->midiValue2, 0, BANKS - 1));
               currentBank = constrain(currentBank, 0, BANKS - 1);
@@ -1346,6 +1368,7 @@ void fire_action(action* act, byte p, byte i, byte e)
               break;
 
             case PED_ACTION_BANK_MINUS:
+              lastBank = currentBank;
               currentBank = constrain((currentBank == act->midiValue1) ? act->midiValue2 : (currentBank - 1), 0, BANKS - 1);
               currentBank = constrain(currentBank, constrain(act->midiValue1, 0, BANKS - 1), constrain(act->midiValue2, 0, BANKS - 1));
               currentBank = constrain(currentBank, 0, BANKS - 1);
@@ -1854,6 +1877,7 @@ void controller_event_handler_analog(byte pedal, byte button, int value)
 
             case PED_ACTION_BANK_PLUS:
             case PED_ACTION_BANK_MINUS:
+              lastBank = currentBank;
               currentBank = map2(value, 0, MIDI_RESOLUTION - 1, constrain(act->midiValue1 - 1, 0, BANKS - 1), constrain(act->midiValue2 - 1, 0, BANKS - 1));
               currentBank = constrain(currentBank, 0, BANKS - 1);
               update_current_step();
@@ -2352,6 +2376,7 @@ void controller_run(bool send = true)
                   case PED_ACTION_BANK_PLUS:
                   case PED_ACTION_BANK_MINUS:
                     {
+                      lastBank = currentBank;
                       int b = currentBank + ((direction == DIR_CW) ? 1 : -1) * (pedals[i].invertPolarity ? -1 : 1);
                       b = constrain(b, constrain(act->midiValue1, 0, BANKS - 1), constrain(act->midiValue2, 0, BANKS - 1));
                       currentBank = constrain(b, 0, BANKS - 1);

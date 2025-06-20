@@ -8,11 +8,12 @@
 
 ## ✨ Key Modifications
 
-- **fix for sequence step+/-**: original version did not work as expected
+- **Fix for sequence step+/-**: original version did not work as expected
 - **Sequence action: "Set Pedal Latch Status"**: sequence can be used to open preset with MIDI PC and recall status of effects
 - **Pedal action: "Sequence Step Repeat"**: repeat current sequence step
-- **allow more sequences**: watchdog would restart esp during read/write of config files
-- **implement 2nd action from analog input EXP1/2**: used to toggle wah wah on/off if input pin is pulled up
+- **Sequence action: "Set Last Bank"**: jump back to last bank
+- **2nd action for analog input EXP1/2**: used to toggle wah wah on/off if input pin is pulled up
+- **Display modifications/improvements**: 3 + 4 action names, adapt font size to bank name length
 - **Bluetooth**: unstable with iPad/AUM (?)
 
 ---

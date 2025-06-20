@@ -94,6 +94,7 @@ byte ActionStringToEnum (String msg)
   else if (msg.equals("OSC Message"))         return PED_OSC_MESSAGE;
 
   else if (msg.equals("Set Bank"))            return PED_ACTION_BANK;
+  else if (msg.equals("Set Last Bank"))       return PED_ACTION_LAST_BANK;
   else if (msg.equals("Bank+"))               return PED_ACTION_BANK_PLUS;
   else if (msg.equals("Bank-"))               return PED_ACTION_BANK_MINUS;
   else if (msg.equals("Profile+"))            return PED_ACTION_PROFILE_PLUS;
@@ -215,6 +216,9 @@ String ActionEnumToString (byte msg)
             break;
           case PED_ACTION_BANK:
             return "Set Bank";
+            break;
+          case PED_ACTION_LAST_BANK:
+            return "Set Last Bank";
             break;
           case PED_ACTION_BANK_PLUS:
             return "Bank+";
@@ -500,17 +504,18 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
 
   vTaskDelay(1); // Feed the watchdog of FreeRTOS
   DPRINT("Writing %s to SPIFFS ... ", filename.c_str());
-
+  
+  File file = SPIFFS.open(filename, FILE_WRITE);
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
+  
   // Watchdog für aktuellen Task deaktivieren
   esp_task_wdt_delete(NULL);
-
-  File file = SPIFFS.open(filename, FILE_WRITE);
   if (!file) {
     DPRINT("can't open file\n");
     esp_task_wdt_add(NULL);  // Watchdog wieder aktivieren
     return;
   }
-
+  
   // Serialize JSON to file
   if (serializeJson(jdoc, file) == 0) {
     DPRINT("serializeJson() failed to write %d bytes\n", measureJson(jdoc));
@@ -519,10 +524,11 @@ void spiffs_save_config(const String& filename, bool saveActions = true, bool sa
     return;
   }
   file.close();
-
+  
   // Watchdog für aktuellen Task wieder aktivieren (Timeout z. B. 3 Sekunden)
   esp_task_wdt_add(NULL);             // Standard-Task
-
+  
+  vTaskDelay(1); // Feed the watchdog of FreeRTOS
   DPRINT("done (%d bytes written)\n", measureJson(jdoc));
 }
 

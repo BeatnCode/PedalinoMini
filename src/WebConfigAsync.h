@@ -3061,6 +3061,11 @@ void get_sequences_page(unsigned int start, unsigned int len) {
     if (sequences[s-1][i-1].midiMessage == PED_ACTION_BANK) page += F(" selected");
     page += F(">Set Bank</option>");
     page += F("<option value='");
+    page += PED_ACTION_LAST_BANK;
+    page += F("'");
+    if (sequences[s-1][i-1].midiMessage == PED_ACTION_LAST_BANK) page += F(" selected");
+    page += F(">Set Last Bank</option>");
+    page += F("<option value='");
     page += PED_ACTION_LED_COLOR;
     page += F("'");
     if (sequences[s-1][i-1].midiMessage == PED_ACTION_LED_COLOR) page += F(" selected");
@@ -3319,6 +3324,13 @@ void get_sequences_page(unsigned int start, unsigned int len) {
             "       document.getElementById('channelSelect' + i).disabled = true;"
             "       document.getElementById('codeInput'     + i).disabled = true;"
             "       document.getElementById('valueLabel'    + i).textContent = 'Bank [0-20]';"
+            "       break;"
+            "     case 'Set Last Bank':"
+            "       document.getElementById('channelSelect' + i).disabled = true;"
+            "       document.getElementById('codeInput'     + i).disabled = true;"
+            "       document.getElementById('valueInput'    + i).disabled = true;"
+            "       document.getElementById('ledSelect'     + i).disabled = true;"
+            "       document.getElementById('colorInput'    + i).disabled = true;"
             "       break;"
             "     case 'Set Led Color':"
             "       document.getElementById('channelSelect' + i).disabled = true;"

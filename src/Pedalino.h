@@ -175,6 +175,7 @@ using namespace ace_button;
 #define PED_SEQUENCE_STEP_BY_STEP_FWD 36
 #define PED_SEQUENCE_STEP_BY_STEP_REV 37
 #define PED_SEQUENCE_STEP_REPEAT      38
+#define PED_ACTION_LAST_BANK          39
 #define PED_ACTION_MIDI_CLOCK_MASTER  40
 #define PED_ACTION_MIDI_CLOCK_SLAVE   41
 #define PED_ACTION_MIDI_CLOCK_OFF     42
@@ -448,6 +449,7 @@ volatile unsigned long scanLoop    = 0;
 volatile unsigned long serviceLoop = 0;
 
 byte  currentBank             = 1;
+byte  lastBank                = 1;
 byte  currentPedal            = 0;
 byte  currentInterface        = PED_USBMIDI;
 byte  lastUsedSwitch          = 0xFF;
