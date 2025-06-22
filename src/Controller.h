@@ -1348,13 +1348,17 @@ void fire_action(action* act, byte p, byte i, byte e)
                 midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
                 leds_update(e, act);
                 strlcpy(lastPedalName, act->tag0, MAXACTIONNAME+1);
-                strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1); // show name of next action
+                if (act->slot != 1) { // not for simultaneous actions
+                  strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1); // show name of next action
+                }
               }
               else {
                 midi_send(act->midiMessage, act->midiCode, act->midiValue2, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
                 leds_update(e, act);
                 strlcpy(lastPedalName, act->tag1, MAXACTIONNAME+1);
-                strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1); // show name of next action
+                if (act->slot != 1) { // not for simultaneous actions
+                  strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1); // show name of next action
+                }
               }
               break;
 
@@ -1677,6 +1681,7 @@ void process_backlog()
             ((act->event == e->event) ||                                                                                                // Events match or
              ((act->event == PED_EVENT_PRESS_RELEASE) && ((e->event == PED_EVENT_PRESS) || (e->event == PED_EVENT_RELEASE)))            // PRESS_RELEASE matches with PRESS or RELEASE
             )) {
+          act->slot = SLOTS; // Set slot to SLOTS for normal actions
           fire_action(act, e->pedal, e->button, e->event);
         }
         act = act->next;
@@ -1711,6 +1716,7 @@ void process_backlog()
                 //  (e->event == f->event)
                 )
                ) {
+              act->slot = 1; // Set slot to 1 for simultaneous actions
               fire_action(act, e->pedal, e->button, e->event);
               e->processed = true;
               f->processed = true;
