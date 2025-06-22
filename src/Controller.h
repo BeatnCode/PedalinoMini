@@ -1348,11 +1348,13 @@ void fire_action(action* act, byte p, byte i, byte e)
                 midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
                 leds_update(e, act);
                 strlcpy(lastPedalName, act->tag0, MAXACTIONNAME+1);
+                strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1); // show name of next action
               }
               else {
                 midi_send(act->midiMessage, act->midiCode, act->midiValue2, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
                 leds_update(e, act);
                 strlcpy(lastPedalName, act->tag1, MAXACTIONNAME+1);
+                strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1); // show name of next action
               }
               break;
 
