@@ -803,48 +803,51 @@ void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int1
       }
       else {
         String name;
-        int offsetText       = 0;
-        int offsetBackground = 0;
+        // int offsetText       = 0;
+        // int offsetBackground = 0;
         static unsigned long ms = millis();
 
         // Display pedals name
         display->setFont(ArialMT_Plain_10);
         
         // Pedals           1,   2,   3,   4,   5,   6,   7,   8,   9
-        int pedal_x[]  = {  0,  46,  82, 128,  -1,  -1,   0,  64, 128 };
+        int pedal_x[]  = { 15,  48,  80, 112,  -1,  -1,  21,  64, 107 };
         int pedal_y[]  = { 51,  51,  51,  51,  -1,  -1,  10,  10,  10 };
         int pedal_y1[] = { 39,  39,  39,  39,  -1,  -1,  25,  25,  25 };
+        int bg_x1[]    = {  0,  32,  64,  96,  -1,  -1,   0,  43,  86 };
+        int bg_x2[]    = { 31,  63,  95, 128,  -1,  -1,  42,  85, 128 };
 
         for (byte p = 0; p < 9; p++) {
-          if ( (p == 0) || (p == 6) ) {
-            display->setTextAlignment(TEXT_ALIGN_LEFT);
-            offsetText = 0;
-            offsetBackground = 0;
-          }
-          if ( (p == 3) || (p == 8) ) {
-            display->setTextAlignment(TEXT_ALIGN_RIGHT);
-            offsetText = -1;
-            offsetBackground = 2;
-          }
-          if ( (p == 1) || (p == 2) || (p == 7) ) {
-            display->setTextAlignment(TEXT_ALIGN_CENTER);
-            offsetText = 0;
-            offsetBackground = 1;
-          } 
+          // if ( (p == 0) || (p == 6) ) {
+          //   display->setTextAlignment(TEXT_ALIGN_LEFT);
+          //   offsetText = 0;
+          //   offsetBackground = 0;
+          // }
+          // if ( (p == 3) || (p == 8) ) {
+          //   display->setTextAlignment(TEXT_ALIGN_RIGHT);
+          //   offsetText = -1;
+          //   offsetBackground = 2;
+          // }
+          // if ( (p == 1) || (p == 2) || (p == 7) ) {
+          //   display->setTextAlignment(TEXT_ALIGN_CENTER);
+          //   offsetText = 0;
+          //   offsetBackground = 1;
+          // } 
+          display->setTextAlignment(TEXT_ALIGN_CENTER);
           
           if ( pedal_x[p] >= 0 ) { // not for pedals 5 & 6
             name = String((banks[currentBank][p].pedalName[0] == ':') ? &banks[currentBank][p].pedalName[1] : banks[currentBank][p].pedalName);
             name.replace(String("###"), String(currentMIDIValue[currentBank][p][0]));
             if (IS_SINGLE_PRESS_ENABLED(pedals[p].pressMode) && currentMIDIValue[currentBank][p][0] == banks[currentBank][p].midiValue2) {
-              display->fillRect(pedal_x[p] - offsetBackground * display->getStringWidth(name) / 2 + offsetText + x,
+              display->fillRect(bg_x1[p] + x,
                                 pedal_y[p] + 2 + y,
-                                display->getStringWidth(name) + 1,
-                                10);
+                                bg_x2[p] - bg_x1[p],
+                                9);
               display->setColor(BLACK);
             } else {
               display->setColor(WHITE);
             }
-            display->drawString(pedal_x[p] + offsetText + x, pedal_y[p] + y, name);
+            display->drawString(pedal_x[p] + x, pedal_y[p] + y, name);
             display->setColor(WHITE);
           }
         }
@@ -852,7 +855,7 @@ void drawFrame1(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int1
         // Center area
         if (((millis() - ms < 4000) && (banknames[currentBank][0] != '.')) || (banknames[currentBank][0] == ':')) {
           // Display bank name
-          display->drawRect(0, 23, 128, 29);
+          display->drawRect(0, 23, 128, 28);
           name = (banknames[currentBank][0] == ':') ? &banknames[currentBank][1] : banknames[currentBank];
           name.replace(String("##"), String(currentBank));
           display->setTextAlignment(TEXT_ALIGN_CENTER_BOTH);
