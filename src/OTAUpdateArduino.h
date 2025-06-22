@@ -69,7 +69,7 @@ inline void ota_handle() {
 }
 
 inline void ota_end() {
-  ArduinoOTA.End();
+  ArduinoOTA.end();
 }
 
 #endif  // NOWIFI

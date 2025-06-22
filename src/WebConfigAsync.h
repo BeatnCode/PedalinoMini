@@ -3340,7 +3340,7 @@ void get_sequences_page(unsigned int start, unsigned int len) {
             "     case 'Set Pedal Latch Status':"
             "       document.getElementById('codeInput'     + i).disabled = true;"
             "       document.getElementById('channelLabel'    + i).textContent = 'Pedal';"
-            "       document.getElementById('valueLabel'    + i).textContent = 'Status';"
+            "       document.getElementById('valueLabel'    + i).textContent = 'Status [0/1]';"
             "       break;"
             "     case 'Start':"
             "     case 'Stop':"

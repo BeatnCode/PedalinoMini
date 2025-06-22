@@ -1078,14 +1078,6 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
         if (sequences[channel][s].midiMessage != PED_ACTION_LED_COLOR) {
           midi_send(sequences[channel][s].midiMessage, sequences[channel][s].midiCode, sequences[channel][s].midiValue, sequences[channel][s].midiChannel, on_off, 0, MIDI_RESOLUTION - 1, bank, pedal, button, led);
         }
-        byte l = (sequences[channel][s].led == 255 ? led : sequences[channel][s].led);
-        l = constrain(l, 0, LEDS);
-        fastleds[l] = sequences[channel][s].color;
-        fastleds[l].nscale8(ledsOnBrightness);
-        if (sequences[channel][s].led != LEDS) { DPRINT("LED COLOR.....Led %2d......RGB Color #%02x%02x%02x\n", l + 1, fastleds[l].red, fastleds[l].green, fastleds[l].blue); }
-        fastleds[l] = swap_rgb_order(fastleds[l], rgbOrder);
-        FastLED.show();
-        lastLedColor[currentBank][l] = fastleds[l];
 
         if (sequences[channel][s].midiMessage == PED_ACTION_SET_LATCH_STATUS) {
           // midiChannel = pedal number
@@ -1095,16 +1087,67 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
             pedalNumber = sequences[channel][s].midiChannel - 1;
             if (sequences[channel][s].midiValue < 2) { // only 0 and 1
               pedals[pedalNumber].latchStatus[0] = sequences[channel][s].midiValue;
+              // find colors in action with default led of pedal
+              // assumption: controls share index with pedals -> control 1 for pedal 1, control 2 for pedal 2, etc.
+              uint32_t c0 = 0;
+              uint32_t c1 = 0;
+              byte pedalLED = LEDS;
+              bool found = false;
+              if (controls[pedalNumber].pedal1 == pedalNumber) {
+                pedalLED = controls[pedalNumber].led;
+                // find action with the same control as the pedal
+                // and get color0 and color1
+                // if not found, use default colors
+                action *act = actions[currentBank];
+                while (act != nullptr) {
+                  if ( (act->control == pedalNumber) && (act->event == PED_EVENT_PRESS_RELEASE) ) {
+                    found = true;
+                    c0 = act->color0;
+                    c1 = act->color1;
+                    break;
+                  }
+                  act = act->next;
+                }
+              }
               if (sequences[channel][s].midiValue == 0) {
                 currentMIDIValue[currentBank][pedalNumber][0] = banks[currentBank][pedalNumber].midiValue1;
                 DPRINT("LATCH STATUS Pedal %d: OFF\n", pedalNumber + 1);
+                if (found) {
+                  fastleds[pedalLED] = c0;
+                  fastleds[pedalLED].nscale8(ledsOffBrightness);
+                  fastleds[pedalLED] = swap_rgb_order(fastleds[pedalLED], rgbOrder);
+                  FastLED.show();
+                  lastLedColor[currentBank][pedalLED] = fastleds[pedalLED];
+                  DPRINT("LED COLOR.....Led %2d......RGB Color #%02x%02x%02x\n", pedalLED + 1, fastleds[pedalLED].red, fastleds[pedalLED].green, fastleds[pedalLED].blue);
+                } else {
+                  DPRINT("No default LED + color found for pedal %d\n", pedalNumber + 1);
+                }
               } else {
                 currentMIDIValue[currentBank][pedalNumber][0] = banks[currentBank][pedalNumber].midiValue2;
                 DPRINT("LATCH STATUS Pedal %d: ON\n", pedalNumber + 1);
+                if (found) {
+                  fastleds[pedalLED] = c1;
+                  fastleds[pedalLED].nscale8(ledsOnBrightness);
+                  fastleds[pedalLED] = swap_rgb_order(fastleds[pedalLED], rgbOrder);
+                  FastLED.show();
+                  lastLedColor[currentBank][pedalLED] = fastleds[pedalLED];
+                  DPRINT("LED COLOR.....Led %2d......RGB Color #%02x%02x%02x\n", pedalLED + 1, fastleds[pedalLED].red, fastleds[pedalLED].green, fastleds[pedalLED].blue);
+                } else {
+                  DPRINT("No default LED + color found for pedal %d\n", pedalNumber + 1);
+                }
               }
             }
           }
         }
+
+        byte l = (sequences[channel][s].led == 255 ? led : sequences[channel][s].led);
+        l = constrain(l, 0, LEDS);
+        fastleds[l] = sequences[channel][s].color;
+        fastleds[l].nscale8(ledsOnBrightness);
+        if (sequences[channel][s].led != LEDS) { DPRINT("LED COLOR.....Led %2d......RGB Color #%02x%02x%02x\n", l + 1, fastleds[l].red, fastleds[l].green, fastleds[l].blue); }
+        fastleds[l] = swap_rgb_order(fastleds[l], rgbOrder);
+        FastLED.show();
+        lastLedColor[currentBank][l] = fastleds[l];
       }
       DPRINT("=======================================================\n");
       currentMIDIValue[bank][pedal][button] = channel;
@@ -1767,23 +1810,23 @@ void controller_event_handler_button(AceButton* button, uint8_t eventType, uint8
   bool simultaneous = false;
   action *act = actions[0];     // Global bank actions
   while (!simultaneous && act != nullptr) {
-    simultaneous = ((((controls[act->control].pedal1 == e.pedal) && (controls[act->control].button1 == e.button) &&
-                    (controls[act->control].pedal2 != PEDALS)  && (controls[act->control].button2 != LADDER_STEPS)) ||
-                    ((controls[act->control].pedal2 == e.pedal) && (controls[act->control].button2 == e.button) &&
-                    (controls[act->control].pedal1 != PEDALS)  && (controls[act->control].button1 != LADDER_STEPS)))) &&
-                   ((act->event == eventType) ||                                                                                            // Events match or
-                    ((act->event == PED_EVENT_PRESS_RELEASE) && ((e.event == PED_EVENT_PRESS) || (e.event == PED_EVENT_RELEASE)))           // PRESS_RELEASE matches with PRESS or RELEASE
+    simultaneous = ((((controls[act->control].pedal1 == e.pedal) && (controls[act->control].button1 == e.button) &&                     // Pedal/Button 1 matches && 
+                    (controls[act->control].pedal2 != PEDALS)  && (controls[act->control].button2 != LADDER_STEPS)) ||                  // Pedal 2 not empty && Button 2 not empty
+                    ((controls[act->control].pedal2 == e.pedal) && (controls[act->control].button2 == e.button) &&                      // Pedal/Button 2 matches &&  
+                    (controls[act->control].pedal1 != PEDALS)  && (controls[act->control].button1 != LADDER_STEPS)))) &&                // Pedal 1 not empty && Button 1 not empty
+                   ((act->event == eventType) ||                                                                                        // Events match or
+                    ((act->event == PED_EVENT_PRESS_RELEASE) && ((e.event == PED_EVENT_PRESS) || (e.event == PED_EVENT_RELEASE)))       // PRESS_RELEASE matches with PRESS or RELEASE
                    );
     act = act->next;
   }
   act = actions[currentBank];   // Current bank actions
   while (!simultaneous && act != nullptr) {
-    simultaneous = ((((controls[act->control].pedal1 == e.pedal) && (controls[act->control].button1 == e.button) &&
-                    (controls[act->control].pedal2 != PEDALS)  && (controls[act->control].button2 != LADDER_STEPS)) ||
-                    ((controls[act->control].pedal2 == e.pedal) && (controls[act->control].button2 == e.button) &&
-                    (controls[act->control].pedal1 != PEDALS)  && (controls[act->control].button1 != LADDER_STEPS)))) &&
-                   ((act->event == eventType) ||                                                                                            // Events match or
-                    ((act->event == PED_EVENT_PRESS_RELEASE) && (((e.event == PED_EVENT_PRESS) || (e.event == PED_EVENT_RELEASE))))           // PRESS_RELEASE matches with PRESS or RELEASE
+    simultaneous = ((((controls[act->control].pedal1 == e.pedal) && (controls[act->control].button1 == e.button) &&                     // Pedal/Button 1 matches && 
+                    (controls[act->control].pedal2 != PEDALS)  && (controls[act->control].button2 != LADDER_STEPS)) ||                  // Pedal 2 not empty && Button 2 not empty
+                    ((controls[act->control].pedal2 == e.pedal) && (controls[act->control].button2 == e.button) &&                      // Pedal/Button 2 matches &&  
+                    (controls[act->control].pedal1 != PEDALS)  && (controls[act->control].button1 != LADDER_STEPS)))) &&                // Pedal 1 not empty && Button 1 not empty
+                   ((act->event == eventType) ||                                                                                        // Events match or
+                    ((act->event == PED_EVENT_PRESS_RELEASE) && (((e.event == PED_EVENT_PRESS) || (e.event == PED_EVENT_RELEASE))))     // PRESS_RELEASE matches with PRESS or RELEASE
                    );
     act = act->next;
   }
