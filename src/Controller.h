@@ -1704,8 +1704,9 @@ void process_backlog()
                  ) &&
                  ((act->event == f->event) ||                                                                                                // Events match or
                   ((act->event == PED_EVENT_PRESS_RELEASE) && ((f->event == PED_EVENT_PRESS) || (f->event == PED_EVENT_RELEASE)))            // PRESS_RELEASE matches with PRESS or RELEASE
-                 ) &&
-                 (e->event == f->event)
+                 ) 
+                //  &&
+                //  (e->event == f->event)
                 )
                ) {
               fire_action(act, e->pedal, e->button, e->event);
