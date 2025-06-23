@@ -343,6 +343,25 @@ void display_progress_bar_2_label(unsigned int label, unsigned int x) {
   update_display();
 }
 
+void display_progress_bar_3_label(unsigned int label, unsigned int x) {
+  const String l(label);
+  
+  // Draw label
+  display.setFont(ArialMT_Plain_10);
+  if (x <= display.getStringWidth(l) / 2) {
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    display.drawString(0, 42, l);
+  }
+  else if (x >= (128 - display.getStringWidth(l) / 2)) {
+    display.setTextAlignment(TEXT_ALIGN_RIGHT);
+    display.drawString(display.width() + 1, 42, l);
+  }
+  else {
+    display.setTextAlignment(TEXT_ALIGN_CENTER);
+    display.drawString(x, 42, l);
+  }
+}
+
 void topOverlay(OLEDDisplay *display, OLEDDisplayUiState* state)
 {
     display->setTextAlignment(TEXT_ALIGN_LEFT);
@@ -483,7 +502,7 @@ void topOverlay(OLEDDisplay *display, OLEDDisplayUiState* state)
 
 void bottomOverlay(OLEDDisplay *display, OLEDDisplayUiState* state)
 {
-  if (lastUsed == lastUsedPedal && lastUsed != 0xFF && millis() < endMillis2 && ((lastPedalName[0] != ':') && (lastPedalName[0] != ';'))) {
+  if (lastUsed == lastUsedPedal && lastUsed != 0xFF && millis() < endMillis2 && (lastPedalName[0] != ':') && (lastPedalName[0] != ';')) {
     //byte p = map2(pedals[lastUsedPedal].pedalValue[0], 0, MIDI_RESOLUTION - 1, 0, 100);
     int p;
     switch (m1) {
@@ -493,7 +512,8 @@ void bottomOverlay(OLEDDisplay *display, OLEDDisplayUiState* state)
         m3 = constrain(m3, rmin, rmax);
         p = map2(m3, rmin, rmax, 0, 100);
         display->drawProgressBar(0, 54, 127, 8, p);
-        if (lastPedalName[0] != 0) display_progress_bar_2_label(m3, map2(p, 0, 100, 3, 124));
+        // if (lastPedalName[0] != 0) display_progress_bar_2_label(m3, map2(p, 0, 100, 3, 124));
+        if (lastPedalName[0] != 0) display_progress_bar_3_label(m3, map2(p, 0, 100, 3, 124));
         break;
 
       case midi::PitchBend:

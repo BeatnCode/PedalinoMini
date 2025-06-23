@@ -633,6 +633,7 @@ void display_progress_bar_title2(const String&, const String&);
 void display_progress_bar_update(unsigned int, unsigned int);
 void display_progress_bar_2_update(unsigned int, unsigned int);
 void display_progress_bar_2_label(unsigned int, unsigned int);
+void display_progress_bar_3_label(unsigned int, unsigned int);
 void display_off();
 
 void switch_profile_or_bank(byte, byte, byte);
