@@ -1345,20 +1345,28 @@ void fire_action(action* act, byte p, byte i, byte e)
             case PED_CONTROL_CHANGE:
             case PED_CONTROL_CHANGE_SNAP:
               if (e == PED_EVENT_RELEASE) {
-                midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
-                leds_update(e, act);
                 strlcpy(lastPedalName, act->tag0, MAXACTIONNAME+1);
                 if (act->slot != 1) { // not for simultaneous actions
-                  strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1); // show name of next action
+                  if (act->tag1 != nullptr && act->tag1[0] != '\0') {
+                    strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1); // show name of next action
+                  } else {
+                    strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1);
+                  }
                 }
+                midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
+                leds_update(e, act);
               }
               else {
-                midi_send(act->midiMessage, act->midiCode, act->midiValue2, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
-                leds_update(e, act);
                 strlcpy(lastPedalName, act->tag1, MAXACTIONNAME+1);
                 if (act->slot != 1) { // not for simultaneous actions
-                  strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1); // show name of next action
+                  if (act->tag0 != nullptr && act->tag0[0] != '\0') {
+                    strlcpy(banks[currentBank][p].pedalName, act->tag0, MAXACTIONNAME+1); // show name of next action
+                  } else {
+                    strlcpy(banks[currentBank][p].pedalName, act->tag1, MAXACTIONNAME+1);
+                  }
                 }
+                midi_send(act->midiMessage, act->midiCode, act->midiValue2, act->midiChannel, true, 0, MIDI_RESOLUTION - 1, currentBank, p, i);
+                leds_update(e, act);
               }
               break;
 
@@ -1716,7 +1724,30 @@ void process_backlog()
                 //  (e->event == f->event)
                 )
                ) {
+              // simultaneous action detected
               act->slot = 1; // Set slot to 1 for simultaneous actions
+              // Reverse the latch status for both pedals if latch emulation is enabled
+              if (pedals[e->pedal].latchEmulation && (
+                  pedals[e->pedal].mode == PED_MOMENTARY1 ||
+                  pedals[e->pedal].mode == PED_MOMENTARY2 ||
+                  pedals[e->pedal].mode == PED_MOMENTARY3 ||
+                  pedals[e->pedal].mode == PED_LADDER     ||
+                  pedals[e->pedal].mode == PED_ANALOG_MOMENTARY)) {
+
+                    pedals[e->pedal].latchStatus[e->button] += 1;
+                    pedals[e->pedal].latchStatus[e->button] %= 2;
+              }
+              if (pedals[f->pedal].latchEmulation && (
+                  pedals[f->pedal].mode == PED_MOMENTARY1 ||
+                  pedals[f->pedal].mode == PED_MOMENTARY2 ||
+                  pedals[f->pedal].mode == PED_MOMENTARY3 ||
+                  pedals[f->pedal].mode == PED_LADDER     ||
+                  pedals[f->pedal].mode == PED_ANALOG_MOMENTARY)) {
+
+                    pedals[f->pedal].latchStatus[f->button] += 1;
+                    pedals[f->pedal].latchStatus[f->button] %= 2;
+              }
+
               fire_action(act, e->pedal, e->button, e->event);
               e->processed = true;
               f->processed = true;
