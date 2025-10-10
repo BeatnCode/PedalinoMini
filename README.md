@@ -8,13 +8,14 @@
 
 ## ✨ Key Modifications
 
-- **Fix for sequence step+/-**: original version did not work as expected
-- **Sequence action: "Set Pedal Latch Status"**: sequence can be used to open preset with MIDI PC and recall status of effects
-- **Pedal action: "Sequence Step Repeat"**: repeat current sequence step
-- **Sequence action: "Set Last Bank"**: jump back to last bank
+- **fix for sequence step+/-**: original version did not work as expected
+- **sequence action: "Set Pedal Latch Status"**: sequence can be used to open preset with MIDI PC and recall status of effects
+- **pedal action: "Sequence Step Repeat"**: repeat current sequence step
+- **sequence action: "Set Last Bank"**: jump back to last bank
 - **2nd action for analog input EXP1/2**: used to toggle wah wah on/off if input pin is pulled up
-- **Display modifications/improvements**: 3 + 4 action names, adapt font size to bank name length
-- **Bluetooth**: unstable with iPad/AUM (?)
+- **display modifications/improvements**: 3 + 4 action names, adapt font size to bank name length
+- **control display latch status indicator"**: ';' before action/bank name to disable latch status on display
+
 
 ---
 
@@ -22,17 +23,22 @@
 
 - **ESP32 board:** Any ESP32 board supported by [Arduino core for ESP32](https://github.com/espressif/arduino-esp32)
   - Tested on [DOIT ESP32 DevKit V1](https://github.com/SmartArduino/SZDOITWiKi/wiki/ESP8266---ESP32) 4M dual-mode Wi-Fi and Bluetooth module
-- **OLED I2C display:** 0.96" or 1.3", 128x64, SSD1306/SH1106
+- **OLED I2C display:** 1.3", 128x64, SSD1306/SH1106
 - **USB MIDI hardware:**
-  - Arduino ProMicro
+  - none
 - **DIN MIDI hardware:**
-  - **MIDI OUT**: DIN5 connector, 2x 220 Ohm resistors
+  - **MIDI OUT**: DIN5 connector, 2x 10 Ohm, 1x 20 Ohm resistors
   - **MIDI IN**: DIN5 connector, 2x 220 Ohm resistors, 1N4001 diode, 6N137 optocoupler
+- **Other hardware:**
+  - 9x DaierTek 10PCS SPST Momentary Soft Touch
+  - 4x 10 kOhm potentiometer
+  - 4 * 4 + 3 = 19x WS2812B WS2812 4Pin RGB Led Chip
+
 
 ## ⚡ Schematic
 
-![Schematic](./docs/assets/Schematic_PedalinoMini.webp "Schematic")
-[View Full Schematic](./docs/assets/Schematic_PedalinoMini.webp)
+![Schematic](./docs/media/SmartStomp_schematic.jpg "Schematic")
+[View Full Schematic](./docs/media/SmartStomp_info.pdf)
 
 ## 🔌 Pin Configuration Guide
 
@@ -65,13 +71,23 @@
 - **OLED SDA**: GPIO 22
 - **OLED SCL**: GPIO 21
 
-See the documentation for a complete list of pin assignments and wiring details.
+## CAD
+
+![Design_1](./docs/assets/SmartStomp_CAD1.PNG "Design_1")
+![Design_2](./docs/assets/SmartStomp_CAD2.PNG "Design_2")
 
 ## Build
+![](docs/media/IMG_4159.jpg)
+![](docs/media/IMG_4158.jpg)
+![](docs/media/IMG_4160.jpg)
+![](docs/media/IMG_4161.jpg) 
+![Picture](./docs/media/DSCF9072.jpg "Picture")
+![Picture](./docs/media/DSCF9073.jpg "Picture")
+![Picture](./docs/media/DSCF9077.jpg "Picture")
+![Picture](./docs/media/DSCF9086.jpg "Picture")
+![](docs/media/IMG_4168.jpg)
+![](docs/media/IMG_4060.jpg) ![](docs/media/IMG_4061.jpg) ![](docs/media/IMG_4063.jpg) ![](docs/media/IMG_4078.jpg) ![](docs/media/IMG_4082.jpg) ![](docs/media/IMG_4146.jpg) ![](docs/media/IMG_4153.jpg) ![](docs/media/IMG_4154.jpg) ![](docs/media/IMG_4155.jpg) ![](docs/media/IMG_4156.jpg) ![](docs/media/IMG_4157.jpg) 
 
-Coming Sooon
-
-![Case](./docs/assets/case.png "Case")
 
 ## ⚖️ License
 
