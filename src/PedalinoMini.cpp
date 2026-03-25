@@ -484,8 +484,14 @@ FastLED.show();
   }
 #endif
 
+  //vTaskDelay(3000);
+  //DPRINT("Current Bank: %d\n", currentBank);
   set_initial_led_color();
   update_profile_led();
+  // Send MIDI message to update LEDs with the current bank -> recall step of current bank of sequence number 11
+  loadSequenceStep(currentBank, CTRL_SEQUENCE);
+  //midi_send(36, currentBank - 1, 0, 11 - 1, true, 0, 127, currentBank, 5, 0, 12);
+  //display_update();
 
   // Create display task on Core 1 instead of Core 0
   xTaskCreatePinnedToCore(
@@ -613,6 +619,8 @@ void loop0(void * pvParameters)
 
     // Feed the watchdog of FreeRTOS
     vTaskDelay(10);
+
+    saveCurrentBankAfterXSeconds(10);
 
 #ifdef WIFI
     if (wifiEnabled) {

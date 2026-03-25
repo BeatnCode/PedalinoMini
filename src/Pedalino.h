@@ -25,7 +25,8 @@
 #define BANKS            21   // 20 banks + 1 bank for global actions
 #define PEDALS           15   // real number of pedals is board specific (see below)
 #define CONTROLS         25 
-#define SEQUENCES        20   
+#define SEQUENCES        20
+#define CTRL_SEQUENCE    11   // sequence number used for bank switching MIDI PC messages and Pedal latch status
 #define STEPS            10   // number of steps for each sequence
 #define LADDER_STEPS      6   // max number of controls in a resistor ladder
 #define ADC_BOARDS        4   //
@@ -400,7 +401,12 @@ action   *actions[BANKS];                         // Actions
 bank      banks[BANKS][PEDALS];                   // The first action of every pedal
 pedal     pedals[PEDALS];                         // Pedals Setup
 control   controls[CONTROLS];                     // Controls Setup
-message   sequences[SEQUENCES][STEPS];            // Sequences Setup
+message   sequences[SEQUENCES][STEPS];            // Sequences Setup      
+                                                  // midi message is used to handle the sequences -> very confusing, but it works -> maybe refactor in the future
+                                                  // midiMessage = Action
+                                                  // midiCode = Step number of sequence
+                                                  // midiValue = 
+                                                  // midiChannel = Sequence number
 byte      currentMIDIValue[BANKS][PEDALS][LADDER_STEPS];
 message   lastMIDIMessage[BANKS];
 CRGB      lastColor0;
@@ -497,8 +503,16 @@ String    sketchMD5;
 uint32_t freeMemory;
 uint32_t maxAllocation;
 
-String wifiSSID     = "";
-String wifiPassword = "";
+#include <credentials.h>
+
+#ifndef WIFI_NAME                        // either use an external .h file containing WIFI_NAME and WIFI_PW - or 
+//                                       // add defines to your boards - or
+#define WIFI_NAME "your-ssid"            // ... modify these line to your SSID
+#define WIFI_PW  "your-password"         // ... and set your WIFI password
+#endif
+
+String wifiSSID     = WIFI_NAME;
+String wifiPassword = WIFI_PW;
 int    wifiLevel    = 0;
 
 uint16_t  batteryVoltage = 4200;  // mV

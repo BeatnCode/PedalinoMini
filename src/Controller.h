@@ -1194,6 +1194,44 @@ void midi_send(byte message, byte code, byte value, byte channel, bool on_off, b
   }
 }
 
+void loadSequenceStep(byte step, byte sequence)
+{
+  // recalls the ctrl-sequence setup from last session
+  // fire action: load sequence step -> initial LED setup
+  
+  midi_send(PED_SEQUENCE_STEP_BY_STEP_FWD, step - 1, 0, sequence - 1, true, 0, 127, step, 5, 0, LEDS);
+
+  // update all actions with the ctrl-sequence in bank 0 to the current step (=currentBank) at startup
+  action *a = actions[0]; // bank 0 = global Bank
+  while ( a != nullptr) {
+    if (a->midiMessage == PED_SEQUENCE_STEP_BY_STEP_FWD) {
+      if (a->midiChannel == sequence) {                 // action contains the ctrl-sequence
+        int tempStep = step;
+        if (tempStep > STEPS - 1) {
+          tempStep = 0;
+        }
+        a->midiCode = tempStep;                             // set current step for the sequence
+        DPRINT("Load sequence step: action %s, step %d\n", a->name, tempStep);
+      }
+    }
+
+    if (a->midiMessage == PED_SEQUENCE_STEP_BY_STEP_REV) {
+      if (a->midiChannel == sequence) {                 // action contains the ctrl-sequence
+        int tempStep = step - 2;
+        if (tempStep == -1) {
+          tempStep = STEPS - 1;                        // STEPS = 10 -> step 10 = index 9 
+        } else if (tempStep == -2) {
+          tempStep = STEPS - 2;
+        }
+        a->midiCode = tempStep;                             // set current step for the sequence
+        DPRINT("Load sequence step: action %s, step %d\n", a->name, tempStep);
+      }
+    }
+
+    a = a->next;
+  }
+}
+
 void fire_action(action* act, byte p, byte i, byte e)
 {
           pedals[p].lastUpdate[0] = micros();
@@ -1254,6 +1292,9 @@ void fire_action(action* act, byte p, byte i, byte e)
               } 
 
               midi_send(act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel - 1, true, act->midiValue1, act->midiValue2, currentBank, p, i, led_control(act->control, act->led));
+              //DPRINT("midiMessage %d, midiCode %d, midiValue1 %d, midiChannel %d\n", act->midiMessage, act->midiCode, act->midiValue1, act->midiChannel);
+              //DPRINT("midiValue2 %d, currentBank %d, pedal %d, button %d\n", act->midiValue2, currentBank, p, i);
+              //DPRINT("led %d\n", led_control(act->control, act->led));
               
               switch (act->midiMessage) {
                 case PED_SEQUENCE_STEP_BY_STEP_FWD:

@@ -12,12 +12,12 @@
 
 This is a "Pedalino Mini" build that I use to control an iPad Air 2 with "Overloud THU" as a guitar multi-effects processor, in combination with "OMEC Teleport" as an audio interface. The main idea behind this project is to map the hardware effect pedals visually to the software effect pedals using color.
 
-One sequence (21) is used to change between presets via "sequence step +/-".
+One control sequence (11) is used to switch between 10 presets via "sequence step +/-".
 
-Each THU presets is configured with one sequence (1 - 10) which contains these actions:
-- change preset with MIDI PC command
+10 THU presets are linked to 10 Pedalino banks (1 - 10), each configured with one sequence (1 - 10) which contains these actions:
+- change THU preset with MIDI PC command
 - set color of pedals
-- set latch status of pedals (keep hardware and software preset in sync)
+- set latch status of pedals (to keep hardware and software preset in sync)
 
 
 ## Software Modifications
@@ -29,6 +29,7 @@ Each THU presets is configured with one sequence (1 - 10) which contains these a
 - **2nd action for analog input EXP1/2**: used to toggle wah wah on/off if input pin is pulled up
 - **display modifications/improvements**: 3 + 4 action names, adapt font size to bank name length
 - **control display latch status indicator"**: ';' before action/bank name to disable latch status on display
+- **recall last session**: Last preset & pedal color recalled at startup
 
 
 ## Bill of Materials

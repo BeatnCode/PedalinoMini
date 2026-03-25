@@ -1836,3 +1836,22 @@ void send_configuration_sysex()
 
 #endif
 }
+
+static unsigned long lastChangeTime = 0;
+byte last_Bank = currentBank;
+bool saveNewBank = false;
+
+void saveCurrentBankAfterXSeconds(byte seconds)
+{
+  if (currentBank != last_Bank) {
+    last_Bank = currentBank;
+    saveNewBank = true;
+    lastChangeTime = millis();
+  }
+    
+  if ((millis() - lastChangeTime >= seconds * 1000) && saveNewBank) {
+    saveNewBank = false;
+    eeprom_update_current_bank();
+    DPRINT("Current bank saved to EEPROM: %d\n", currentBank);
+  }
+}
